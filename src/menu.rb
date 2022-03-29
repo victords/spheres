@@ -6,11 +6,11 @@ class Menu
 
     @buttons = {
       main: [
-        Button.new(305, 240, 'Play'),
-        Button.new(305, 290, 'Instructions'),
-        Button.new(305, 340, 'Options'),
-        Button.new(305, 390, 'High Scores'),
-        Button.new(305, 480, 'Exit') do
+        Button.new(305, 240, Localization.text(:play)),
+        Button.new(305, 290, Localization.text(:instructions)),
+        Button.new(305, 340, Localization.text(:options)),
+        Button.new(305, 390, Localization.text(:high_scores)),
+        Button.new(305, 480, Localization.text(:exit)) do
           exit
         end,
       ]

@@ -1,0 +1,5 @@
+play			Play
+instructions	Instructions
+options			Options
+high_scores		High Scores
+exit			Exit

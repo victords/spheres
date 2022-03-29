@@ -5,6 +5,7 @@ class Game
     attr_reader :font
 
     def initialize
+      Localization.initialize
       @music_volume = 10
       @sound_volume = 10
       @font = Res.font(:arialRounded, 24)

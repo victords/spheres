@@ -1,0 +1,5 @@
+play			Jogar
+instructions	Instruções
+options			Opções
+high_scores		Recordes
+exit			Sair
