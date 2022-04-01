@@ -5,7 +5,7 @@ class Game
     attr_reader :font
 
     def initialize
-      Localization.initialize
+      Locl.initialize
       @music_volume = 10
       @sound_volume = 10
       @font = Res.font(:arialRounded, 24)
@@ -24,6 +24,9 @@ class Game
     end
 
     def update
+      Locl.language = :portuguese if KB.key_pressed?(Gosu::KB_P)
+      Locl.language = :spanish if KB.key_pressed?(Gosu::KB_S)
+
       @controller.update
     end
 

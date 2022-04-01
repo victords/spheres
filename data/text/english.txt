@@ -3,3 +3,11 @@ instructions	Instructions
 options			Options
 high_scores		High Scores
 exit			Exit
+back			Back
+previous		Previous
+next			Next
+instructions_0	Spheres is a "match-3" game.\ \Your goal is to destroy spheres by joining 3 or more of the same color in a horizontal or vertical line, by swapping their positions.\ \If a group of spheres breaks and causes other groups to form from the falling spheres, you'll get score bonuses that increase exponentially!\ \Spheres includes 3 exciting game modes, for different kinds of fun!
+instructions_1	Basic mode: in this mode, spheres keep falling from the sky. As your score goes up, the frequency of spheres also increases, ramping up the challenge.\ \There are only 6 basic colored spheres, so it's possible to plan really intricate chain reactions while you play.
+instructions_2	Dynamic mode: this mode uses the same principles of the basic mode, but there are many other elements besides the basic colored spheres: some can't be moved, some are rainbow-colored and can be combined with any other colored spheres, and there are also items that you earn by leveling up.
+instructions_3	Static mode: it's a puzzle mode where there are no spheres falling from the sky.\ \Each level has a fixed starting set of spheres and you have to either clear them all or achieve a minimum score.
+instructions_4	Controls: you'll basically only need the mouse to play.\ \Use Alt+Enter to toggle between full screen and windowed mode.

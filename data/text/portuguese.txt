@@ -3,3 +3,11 @@ instructions	Instruções
 options			Opções
 high_scores		Recordes
 exit			Sair
+back			Voltar
+previous		Anterior
+next			Próximo
+instructions_0	Spheres é um jogo de "combinar 3". Seu objetivo é destruir esferas juntando 3 ou mais da mesma cor numa linha horizontal ou vertical, trocando suas posições.\ \Se um grupo de esferas é destruído e causa a formação de outro grupo pelas esferas que caem, você ganha bônus de pontuação que aumenta exponencialmente!\ \Spheres possui 3 modos de jogo para diferentes tipos de diversão!
+instructions_1	Modo Básico: neste modo, esferas caem do céu constantemente. Conforme sua pontuação aumenta, a frequência de esferas também aumenta, elevando o desafio.\ \Há apenas esferas de 6 cores básicas, o que permite que você planeje reações em cadeia detalhadas enquanto joga.
+instructions_2	Modo Dinâmico: este modo usa os mesmos princípios que o básico, mas há diversos outros elementos além das esferas de cores básicas: algumas não podem ser movidas, outras tem as cores do arco-íris e podem ser combinadas com esferas de qualquer cor, e há também itens que você ganha ao subir de nível.
+instructions_3	Modo Estático: é um modo quebra-cabeça onde não há esferas caindo do céu.\ \Cada fase possui um conjunto fixo de esferas, e você deve eliminar todas ou atingir uma pontuação mínima.
+instructions_4	Controles: você precisará apenas do mouse para jogar.\ \Use Alt+Enter para alternar entre tela cheia e janela.
