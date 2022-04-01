@@ -7,20 +7,52 @@ class Menu
 
     @buttons = {
       main: [
-        Button.new(305, 240, Locl.text(:play)),
-        Button.new(305, 290, Locl.text(:instructions)) do
+        Button.new(305, 240, :play),
+        Button.new(305, 290, :instructions) do
           set_page(:instructions, 0)
         end,
-        Button.new(305, 340, Locl.text(:options)),
-        Button.new(305, 390, Locl.text(:high_scores)) do
+        Button.new(305, 340, :options) do
+          @state = :options
+        end,
+        Button.new(305, 390, :high_scores) do
           set_page(:high_scores, 0)
         end,
-        Button.new(305, 480, Locl.text(:exit)) do
+        Button.new(305, 480, :exit) do
           G.window.close
         end,
       ],
       instructions: [],
-      options: [],
+      options: [
+        Button.new(100, 200, nil, false, '<') do
+          Game.change_language(-1)
+          @buttons.each { |_, group| group.each(&:update_text) }
+        end,
+        Button.new(SCREEN_WIDTH - 290, 200, nil, false, '>') do
+          Game.change_language(1)
+          @buttons.each { |_, group| group.each(&:update_text) }
+        end,
+        Button.new(100, 250, nil, false, '<') do
+          Game.toggle_full_screen
+        end,
+        Button.new(SCREEN_WIDTH - 290, 250, nil, false, '>') do
+          Game.toggle_full_screen
+        end,
+        Button.new(100, 300, nil, false, '<') do
+          Game.change_music_volume(-1)
+        end,
+        Button.new(SCREEN_WIDTH - 290, 300, nil, false, '>') do
+          Game.change_music_volume(1)
+        end,
+        Button.new(100, 350, nil, false, '<') do
+          Game.change_sound_volume(-1)
+        end,
+        Button.new(SCREEN_WIDTH - 290, 350, nil, false, '>') do
+          Game.change_sound_volume(1)
+        end,
+        Button.new(305, 510, :back, true) do
+          @state = :main
+        end
+      ],
       high_scores: []
     }
 
@@ -40,15 +72,15 @@ class Menu
     @page = num
     @buttons[state].clear
     if num > 0
-      @buttons[state] << Button.new(105, 510, Locl.text(:previous)) do
+      @buttons[state] << Button.new(105, 510, :previous) do
         set_page(state, num - 1)
       end
     end
-    @buttons[state] << Button.new(305, 510, Locl.text(:back)) do
+    @buttons[state] << Button.new(305, 510, :back, true) do
       @state = :main
     end
     if num < @page_count[state] - 1
-      @buttons[state] << Button.new(505, 510, Locl.text(:next)) do
+      @buttons[state] << Button.new(505, 510, :next) do
         set_page(state, num + 1)
       end
     end
@@ -70,6 +102,11 @@ class Menu
                                   mode_page ? :right : :center,
                                   0x003333)
       Res.img("other_screenshot#{@page}").draw(530, 200, 0) if mode_page
+    when :options
+      @text_helper.write_line(Locl.text(:lang_name), SCREEN_WIDTH / 2, 215, :center, 0x003333)
+      @text_helper.write_line(Locl.text(Game.full_screen ? :full_screen : :window), SCREEN_WIDTH / 2, 265, :center, 0x003333)
+      @text_helper.write_line(Locl.text(:music_volume, Game.music_volume), SCREEN_WIDTH / 2, 315, :center, 0x003333)
+      @text_helper.write_line(Locl.text(:sound_volume, Game.sound_volume), SCREEN_WIDTH / 2, 365, :center, 0x003333)
     end
 
     @buttons[@state]&.each(&:draw)

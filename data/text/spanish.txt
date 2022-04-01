@@ -11,3 +11,8 @@ instructions_1	Modo Básico: en este modo, las esferas siguen cayendo del cielo.
 instructions_2	Modo Dinámico: este modo utiliza los mismos principios que el modo básico, pero hay muchos otros elementos además de las esferas de colores básicas: algunas no se pueden mover, algunas tienen los colores del arcoíris y se pueden combinar con esferas de cualquier color, y hay también ítenes que ganas al subir de nivel.
 instructions_3	Modo Estático: es un modo de rompecabezas en el que no hay esferas que caen del cielo.\ \Cada nivel tiene un conjunto fijo de esferas iniciales y tienes que eliminarlas todas o alcanzar una puntuación mínima.
 instructions_4	Controles: básicamente solo necesitarás el mouse para jugar.\ \Usa Alt+Enter para alternar entre pantalla completa y modo de ventana.
+lang_name		Español
+full_screen		Pantalla completa
+window			Ventana
+music_volume	Volúmen de la música: $
+sound_volume	Volúmen del sonido: $

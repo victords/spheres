@@ -1,14 +1,21 @@
 require 'minigl'
 
 class Button < MiniGL::Button
-  def initialize(x, y, text, back = false, &action)
+  def initialize(x, y, text_id, back = false, text = nil, &action)
     super(x: x, y: y, img: :interface_button)
-    @_text = text
+    @text_id = text_id
+    @_text = text || Locl.text(text_id)
     @action = lambda do |_|
       action&.call
       Game.play_sound(back ? :backButtonClick : :buttonClick)
     end
     @text_helper = MiniGL::TextHelper.new(Game.font)
+  end
+
+  def update_text
+    return unless @text_id
+
+    @_text = Locl.text(@text_id)
   end
 
   def draw
