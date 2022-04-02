@@ -6,7 +6,7 @@ include MiniGL
 
 class Window < GameWindow
   def initialize
-    super(SCREEN_WIDTH, SCREEN_HEIGHT, false)
+    super(SCREEN_WIDTH, SCREEN_HEIGHT, Game.full_screen)
     self.caption = 'Spheres'
     Res.prefix = File.expand_path(__FILE__).split('/')[0..-3].join('/') + '/data'
     Game.initialize
@@ -27,4 +27,5 @@ class Window < GameWindow
   end
 end
 
+Game.load
 Window.new.show

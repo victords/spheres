@@ -50,6 +50,7 @@ class Menu
           Game.change_sound_volume(1)
         end,
         Button.new(305, 510, :back, true) do
+          Game.save_options
           @state = :main
         end
       ],

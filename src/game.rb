@@ -1,14 +1,43 @@
+require 'rbconfig'
+require 'fileutils'
 require_relative 'menu'
 
 class Game
   class << self
     attr_reader :font, :full_screen, :music_volume, :sound_volume
 
+    def load
+      @save_dir =
+        if /linux/ =~ RbConfig::CONFIG['host_os']
+          "#{Dir.home}/.vds-games/spheres"
+        else
+          "#{Dir.home}/AppData/Local/VDS Games/Spheres"
+        end
+      FileUtils.mkdir_p(@save_dir) unless File.exist?(@save_dir)
+
+      options_path = "#{@save_dir}/config"
+      if File.exist?(options_path)
+        File.open(options_path) do |f|
+          data = f.read.split(';')
+          @full_screen = data[0] == '+'
+          @language = data[1].to_i
+          @music_volume = data[2].to_i
+          @sound_volume = data[3].to_i
+        end
+      else
+        @full_screen = true
+        @language = 0
+        @music_volume = 10
+        @sound_volume = 10
+        save_options
+      end
+    end
+
     def initialize
       Locl.initialize
-      @full_screen = false
-      @music_volume = 10
-      @sound_volume = 10
+      Locl.language = Locl.languages[@language]
+      @language = nil
+
       @font = Res.font(:arialRounded, 24)
       @controller = Menu.new
     end
@@ -48,9 +77,21 @@ class Game
       @sound_volume = @sound_volume.clamp(0, 10)
     end
 
+    def save_options
+      File.open("#{@save_dir}/config", 'w+') do |f|
+        f.write([
+          @full_screen ? '+' : '-',
+          @language || Locl.languages.index(Locl.language),
+          @music_volume,
+          @sound_volume
+        ].join(';'))
+      end
+    end
+
     def update
       if KB.key_down?(Gosu::KB_LEFT_ALT) && KB.key_pressed?(Gosu::KB_RETURN)
         @full_screen = !@full_screen
+        save_options
       end
 
       @controller.update
