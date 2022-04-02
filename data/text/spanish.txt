@@ -16,3 +16,8 @@ full_screen		Pantalla completa
 window			Ventana
 music_volume	Volúmen de la música: $
 sound_volume	Volúmen del sonido: $
+high_scores_0	Modo Básico
+high_scores_1	Modo Dinámico (Fácil)
+high_scores_2	Modo Dinámico (Normal)
+high_scores_3	Modo Dinámico (Difícil)
+high_scores_4	Modo Dinámico (Experto)

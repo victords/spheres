@@ -101,13 +101,19 @@ class Menu
                                   mode_page ? 500 : SCREEN_WIDTH / 2, 200,
                                   mode_page ? 450 : 700,
                                   mode_page ? :right : :center,
-                                  0x003333)
+                                  TEXT_COLOR)
       Res.img("other_screenshot#{@page}").draw(530, 200, 0) if mode_page
     when :options
-      @text_helper.write_line(Locl.text(:lang_name), SCREEN_WIDTH / 2, 215, :center, 0x003333)
-      @text_helper.write_line(Locl.text(Game.full_screen ? :full_screen : :window), SCREEN_WIDTH / 2, 265, :center, 0x003333)
-      @text_helper.write_line(Locl.text(:music_volume, Game.music_volume), SCREEN_WIDTH / 2, 315, :center, 0x003333)
-      @text_helper.write_line(Locl.text(:sound_volume, Game.sound_volume), SCREEN_WIDTH / 2, 365, :center, 0x003333)
+      @text_helper.write_line(Locl.text(:lang_name), SCREEN_WIDTH / 2, 215, :center, TEXT_COLOR)
+      @text_helper.write_line(Locl.text(Game.full_screen ? :full_screen : :window), SCREEN_WIDTH / 2, 265, :center, TEXT_COLOR)
+      @text_helper.write_line(Locl.text(:music_volume, Game.music_volume), SCREEN_WIDTH / 2, 315, :center, TEXT_COLOR)
+      @text_helper.write_line(Locl.text(:sound_volume, Game.sound_volume), SCREEN_WIDTH / 2, 365, :center, TEXT_COLOR)
+    when :high_scores
+      @text_helper.write_line(Locl.text("high_scores_#{@page}".to_sym), SCREEN_WIDTH / 2, 175, :center, TEXT_COLOR)
+      Game.scores[@page].each_with_index do |entry, i|
+        @text_helper.write_line("#{i + 1}. #{entry[0]}", 200, 210 + i * 28, :left, TEXT_COLOR)
+        @text_helper.write_line(entry[1], SCREEN_WIDTH - 200, 210 + i * 28, :right, TEXT_COLOR)
+      end
     end
 
     @buttons[@state]&.each(&:draw)

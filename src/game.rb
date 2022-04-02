@@ -4,7 +4,7 @@ require_relative 'menu'
 
 class Game
   class << self
-    attr_reader :font, :full_screen, :music_volume, :sound_volume
+    attr_reader :font, :full_screen, :music_volume, :sound_volume, :scores
 
     def load
       @save_dir =
@@ -30,6 +30,28 @@ class Game
         @music_volume = 10
         @sound_volume = 10
         save_options
+      end
+
+      scores_path = "#{@save_dir}/scores"
+      if File.exist?(scores_path)
+        @scores = []
+        File.open(scores_path) do |f|
+          modes = f.read.split(';')
+          (0..4).each do |i|
+            @scores[i] = modes[i].split(',').map { |entry| entry.split(':') }
+          end
+          @scores[5] = modes[5].to_i
+        end
+      else
+        @scores = [
+          [], # basic high scores
+          [], # dynamic easy high scores
+          [], # dynamic normal high scores
+          [], # dynamic hard high scores
+          [], # dynamic expert high scores
+          1   # static last level reached
+        ]
+        save_scores
       end
     end
 
@@ -85,6 +107,14 @@ class Game
           @music_volume,
           @sound_volume
         ].join(';'))
+      end
+    end
+
+    def save_scores
+      File.open("#{@save_dir}/scores", 'w+') do |f|
+        f.write(
+          "#{@scores[0..4].map { |s| s.map { |e| e.join(':') }.join(',') }.join(';')};#{@scores[5]}"
+        )
       end
     end
 
