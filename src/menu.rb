@@ -2,12 +2,16 @@ require_relative 'button'
 require_relative 'constants'
 
 class Menu
+  DIFFICULTIES = %i[easy normal hard expert]
+
   def initialize
     @bg = Res.img(:other_bgStart)
 
     @buttons = {
       main: [
-        Button.new(305, 240, :play),
+        Button.new(305, 240, :play) do
+          @state = :game_mode
+        end,
         Button.new(305, 290, :instructions) do
           set_page(:instructions, 0)
         end,
@@ -23,30 +27,30 @@ class Menu
       ],
       instructions: [],
       options: [
-        Button.new(100, 200, nil, false, '<') do
+        Button.new(80, 200, nil, false, '<') do
           Game.change_language(-1)
           @buttons.each { |_, group| group.each(&:update_text) }
         end,
-        Button.new(SCREEN_WIDTH - 290, 200, nil, false, '>') do
+        Button.new(SCREEN_WIDTH - 270, 200, nil, false, '>') do
           Game.change_language(1)
           @buttons.each { |_, group| group.each(&:update_text) }
         end,
-        Button.new(100, 250, nil, false, '<') do
+        Button.new(80, 250, nil, false, '<') do
           Game.toggle_full_screen
         end,
-        Button.new(SCREEN_WIDTH - 290, 250, nil, false, '>') do
+        Button.new(SCREEN_WIDTH - 270, 250, nil, false, '>') do
           Game.toggle_full_screen
         end,
-        Button.new(100, 300, nil, false, '<') do
+        Button.new(80, 300, nil, false, '<') do
           Game.change_music_volume(-1)
         end,
-        Button.new(SCREEN_WIDTH - 290, 300, nil, false, '>') do
+        Button.new(SCREEN_WIDTH - 270, 300, nil, false, '>') do
           Game.change_music_volume(1)
         end,
-        Button.new(100, 350, nil, false, '<') do
+        Button.new(80, 350, nil, false, '<') do
           Game.change_sound_volume(-1)
         end,
-        Button.new(SCREEN_WIDTH - 290, 350, nil, false, '>') do
+        Button.new(SCREEN_WIDTH - 270, 350, nil, false, '>') do
           Game.change_sound_volume(1)
         end,
         Button.new(305, 510, :back, true) do
@@ -54,7 +58,31 @@ class Menu
           @state = :main
         end
       ],
-      high_scores: []
+      high_scores: [],
+      game_mode: [
+        Button.new(305, 240, :basic) do
+          Game.start_basic
+        end,
+        Button.new(305, 310, :dynamic) do
+          @state = :dynamic_difficulty
+        end,
+        Button.new(305, 380, :static) do
+          Game.start_static
+        end,
+        Button.new(305, 480, :back, true) do
+          @state = :main
+        end
+      ],
+      dynamic_difficulty:
+        DIFFICULTIES.map.with_index do |diff, i|
+          Button.new(305, 240 + i * 50, diff) do
+            Game.start_dynamic(diff)
+          end
+        end.push(
+          Button.new(305, 480, :back, true) do
+            @state = :game_mode
+          end
+        )
     }
 
     @state = :main
@@ -109,13 +137,20 @@ class Menu
       @text_helper.write_line(Locl.text(:music_volume, Game.music_volume), SCREEN_WIDTH / 2, 315, :center, TEXT_COLOR)
       @text_helper.write_line(Locl.text(:sound_volume, Game.sound_volume), SCREEN_WIDTH / 2, 365, :center, TEXT_COLOR)
     when :high_scores
-      @text_helper.write_line(Locl.text("high_scores_#{@page}".to_sym), SCREEN_WIDTH / 2, 175, :center, TEXT_COLOR)
+      text = @page == 0 ? Locl.text(:high_scores_0) : Locl.text(:high_scores_1, Locl.text(DIFFICULTIES[@page - 1]))
+      @text_helper.write_line(text, SCREEN_WIDTH / 2, 175, :center, TEXT_COLOR)
       Game.scores[@page].each_with_index do |entry, i|
         @text_helper.write_line("#{i + 1}. #{entry[0]}", 200, 210 + i * 28, :left, TEXT_COLOR)
         @text_helper.write_line(entry[1], SCREEN_WIDTH - 200, 210 + i * 28, :right, TEXT_COLOR)
       end
+    when :game_mode
+      @text_helper.write_line(Locl.text(:game_mode), SCREEN_WIDTH / 2, 180, :center, TEXT_COLOR)
+    when :dynamic_difficulty
+      @text_helper.write_line(Locl.text(:difficulty), SCREEN_WIDTH / 2, 180, :center, TEXT_COLOR)
     end
 
     @buttons[@state]&.each(&:draw)
+
+    @text_helper.write_line('v2.0.0', SCREEN_WIDTH - 10, SCREEN_HEIGHT - 20, :right, TEXT_COLOR, 255, nil, 0, 0, 0, 0, 0.5, 0.5)
   end
 end

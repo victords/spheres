@@ -17,7 +17,13 @@ window			Ventana
 music_volume	Volúmen de la música: $
 sound_volume	Volúmen del sonido: $
 high_scores_0	Modo Básico
-high_scores_1	Modo Dinámico (Fácil)
-high_scores_2	Modo Dinámico (Normal)
-high_scores_3	Modo Dinámico (Difícil)
-high_scores_4	Modo Dinámico (Experto)
+high_scores_1	Modo Dinámico ($)
+easy			Fácil
+normal			Normal
+hard			Difícil
+expert			Experto
+game_mode		Selecciona el modo de juego
+basic			Básico
+dynamic			Dinámico
+static			Estático
+difficulty		Selecciona la dificultad

@@ -118,6 +118,18 @@ class Game
       end
     end
 
+    def start_basic
+      puts 'starting basic mode'
+    end
+
+    def start_dynamic(difficulty)
+      puts "starting dynamic mode (#{difficulty})"
+    end
+
+    def start_static
+      puts 'starting static mode'
+    end
+
     def update
       if KB.key_down?(Gosu::KB_LEFT_ALT) && KB.key_pressed?(Gosu::KB_RETURN)
         @full_screen = !@full_screen

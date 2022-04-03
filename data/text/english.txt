@@ -17,7 +17,13 @@ window			Window
 music_volume	Music volume: $
 sound_volume	Sound volume: $
 high_scores_0	Basic Mode
-high_scores_1	Dynamic Mode (Easy)
-high_scores_2	Dynamic Mode (Normal)
-high_scores_3	Dynamic Mode (Hard)
-high_scores_4	Dynamic Mode (Expert)
+high_scores_1	Dynamic Mode ($)
+easy			Easy
+normal			Normal
+hard			Hard
+expert			Expert
+game_mode		Choose game mode
+basic			Basic
+dynamic			Dynamic
+static			Static
+difficulty		Choose difficulty
