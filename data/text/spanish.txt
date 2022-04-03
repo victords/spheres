@@ -27,3 +27,9 @@ basic			Básico
 dynamic			Dinámico
 static			Estático
 difficulty		Selecciona la dificultad
+pause			Pausar
+resume			Continuar
+restart			Reanudar
+are_you_sure	¿Estás seguro de que quieres $?
+yes				Sí
+no				No

@@ -1,6 +1,7 @@
 require 'rbconfig'
 require 'fileutils'
 require_relative 'menu'
+require_relative 'basic_mode'
 
 class Game
   class << self
@@ -119,7 +120,7 @@ class Game
     end
 
     def start_basic
-      puts 'starting basic mode'
+      @controller = BasicMode.new
     end
 
     def start_dynamic(difficulty)
@@ -128,6 +129,10 @@ class Game
 
     def start_static
       puts 'starting static mode'
+    end
+
+    def quit
+      @controller = Menu.new
     end
 
     def update

@@ -12,7 +12,8 @@ class Button < MiniGL::Button
     @text_helper = MiniGL::TextHelper.new(Game.font)
   end
 
-  def update_text
+  def update_text(text_id = nil)
+    @text_id = text_id if text_id
     return unless @text_id
 
     @_text = Locl.text(@text_id)

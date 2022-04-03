@@ -9,16 +9,16 @@ class Menu
 
     @buttons = {
       main: [
-        Button.new(305, 240, :play) do
+        Button.new(305, 230, :play) do
           @state = :game_mode
         end,
-        Button.new(305, 290, :instructions) do
+        Button.new(305, 283, :instructions) do
           set_page(:instructions, 0)
         end,
-        Button.new(305, 340, :options) do
+        Button.new(305, 336, :options) do
           @state = :options
         end,
-        Button.new(305, 390, :high_scores) do
+        Button.new(305, 389, :high_scores) do
           set_page(:high_scores, 0)
         end,
         Button.new(305, 480, :exit) do
@@ -35,22 +35,22 @@ class Menu
           Game.change_language(1)
           @buttons.each { |_, group| group.each(&:update_text) }
         end,
-        Button.new(80, 250, nil, false, '<') do
+        Button.new(80, 253, nil, false, '<') do
           Game.toggle_full_screen
         end,
-        Button.new(SCREEN_WIDTH - 270, 250, nil, false, '>') do
+        Button.new(SCREEN_WIDTH - 270, 253, nil, false, '>') do
           Game.toggle_full_screen
         end,
-        Button.new(80, 300, nil, false, '<') do
+        Button.new(80, 306, nil, false, '<') do
           Game.change_music_volume(-1)
         end,
-        Button.new(SCREEN_WIDTH - 270, 300, nil, false, '>') do
+        Button.new(SCREEN_WIDTH - 270, 306, nil, false, '>') do
           Game.change_music_volume(1)
         end,
-        Button.new(80, 350, nil, false, '<') do
+        Button.new(80, 359, nil, false, '<') do
           Game.change_sound_volume(-1)
         end,
-        Button.new(SCREEN_WIDTH - 270, 350, nil, false, '>') do
+        Button.new(SCREEN_WIDTH - 270, 359, nil, false, '>') do
           Game.change_sound_volume(1)
         end,
         Button.new(305, 510, :back, true) do
@@ -133,9 +133,9 @@ class Menu
       Res.img("other_screenshot#{@page}").draw(530, 200, 0) if mode_page
     when :options
       @text_helper.write_line(Locl.text(:lang_name), SCREEN_WIDTH / 2, 215, :center, TEXT_COLOR)
-      @text_helper.write_line(Locl.text(Game.full_screen ? :full_screen : :window), SCREEN_WIDTH / 2, 265, :center, TEXT_COLOR)
-      @text_helper.write_line(Locl.text(:music_volume, Game.music_volume), SCREEN_WIDTH / 2, 315, :center, TEXT_COLOR)
-      @text_helper.write_line(Locl.text(:sound_volume, Game.sound_volume), SCREEN_WIDTH / 2, 365, :center, TEXT_COLOR)
+      @text_helper.write_line(Locl.text(Game.full_screen ? :full_screen : :window), SCREEN_WIDTH / 2, 268, :center, TEXT_COLOR)
+      @text_helper.write_line(Locl.text(:music_volume, Game.music_volume), SCREEN_WIDTH / 2, 321, :center, TEXT_COLOR)
+      @text_helper.write_line(Locl.text(:sound_volume, Game.sound_volume), SCREEN_WIDTH / 2, 374, :center, TEXT_COLOR)
     when :high_scores
       text = @page == 0 ? Locl.text(:high_scores_0) : Locl.text(:high_scores_1, Locl.text(DIFFICULTIES[@page - 1]))
       @text_helper.write_line(text, SCREEN_WIDTH / 2, 175, :center, TEXT_COLOR)

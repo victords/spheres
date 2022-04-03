@@ -27,3 +27,9 @@ basic			Basic
 dynamic			Dynamic
 static			Static
 difficulty		Choose difficulty
+pause			Pause
+resume			Resume
+restart			Restart
+are_you_sure	Are you sure you want to $?
+yes				Yes
+no				No
