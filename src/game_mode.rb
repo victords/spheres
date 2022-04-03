@@ -1,7 +1,11 @@
 require_relative 'button'
 require_relative 'constants'
+require_relative 'sphere'
 
 class GameMode
+  NUM_COLS = 8
+  NUM_ROWS = 12
+
   def initialize
     @bg = Res.img(:other_bgMain)
     @fg = Res.img(:other_fgMain)
@@ -33,12 +37,21 @@ class GameMode
     ]
 
     @text_helper = TextHelper.new(Game.font)
+
+    @spheres = Array.new(NUM_COLS) do
+      Array.new(NUM_ROWS)
+    end
+    @margin = Vector.new((SCREEN_WIDTH - SPHERE_SIZE * NUM_COLS) / 2, 95)
   end
 
   def start
     @paused = false
     @buttons[0].update_text(:pause)
     @confirmation = nil
+  end
+
+  def add_sphere(col, row, type, locked = false)
+    @spheres[col][row] = Sphere.new(type, locked, @margin.x + col * SPHERE_SIZE, @margin.y + (NUM_ROWS - row - 1) * SPHERE_SIZE)
   end
 
   def update
@@ -48,11 +61,26 @@ class GameMode
     end
 
     @buttons.each(&:update)
+
+    (0...NUM_COLS).each do |i|
+      (0...NUM_ROWS).each do |j|
+        next if !@spheres[i][j] || @spheres[i][j - 1]&.y == @spheres[i][j].y + SPHERE_SIZE
+        next if j == 0 && @spheres[i][j].y == @margin.y + (NUM_ROWS - 1) * SPHERE_SIZE
+
+        @spheres[i][j].y += FALL_SPEED
+        if @spheres[i][j].y > @margin.y + (NUM_ROWS - j - 1) * SPHERE_SIZE
+          @spheres[i][j - 1] = @spheres[i][j]
+          @spheres[i][j] = nil
+        end
+      end
+    end
   end
 
   def draw
     @bg.draw(235, 90, 0)
-    yield if block_given?
+
+    @spheres.flatten.each { |s| s&.draw }
+
     @fg.draw(0, 0, 0)
     @buttons.each(&:draw)
 
