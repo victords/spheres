@@ -1,12 +1,13 @@
-class Sphere
-  attr_accessor :x, :y, :stopped
+require 'minigl'
+
+class Sphere < MiniGL::Sprite
+  attr_reader :type
+  attr_accessor :stopped
 
   def initialize(type, locked, x, y)
+    super(x, y, "sprite_#{type}Sphere", 2, 1)
     @type = type
-    @img = Res.imgs("sprite_#{type}Sphere", 2, 1)
     @lock = Res.img(:sprite_cage) if locked
-    @x = x
-    @y = y
   end
 
   def locked
@@ -14,7 +15,7 @@ class Sphere
   end
 
   def draw
-    @img[0].draw(@x, @y, 0)
+    super
     @lock&.draw(@x, @y, 0)
   end
 end

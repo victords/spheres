@@ -67,6 +67,34 @@ class GameMode
     sphere&.stopped && sphere.y == row_y && !sphere.locked && (!obj_below || obj_below.y == row_y + SPHERE_SIZE)
   end
 
+  def check_matches(horizontal = true)
+    limit1 = horizontal ? NUM_ROWS : NUM_COLS
+    limit2 = horizontal ? NUM_COLS : NUM_ROWS
+
+    matches = []
+    (0...limit1).each do |i|
+      (0...limit2).each do |j|
+        col = horizontal ? j : i
+        row = horizontal ? i : j
+        obj = @objects[col][row]
+        unless obj.is_a?(Sphere) && obj.stopped
+          matches << nil
+          next
+        end
+
+        match = matches[-1]
+        same_line = match && (horizontal ? row == match[:row] : col == match[:col])
+        if same_line && (obj.type == match[:type] || obj.type == :rainbow || match[:type] == :rainbow)
+          match[:type] = obj.type if obj.type != :rainbow
+          match[:count] += 1
+        else
+          matches << { type: obj.type, horiz: horizontal, col: col, row: row, count: 1 }
+        end
+      end
+    end
+    matches
+  end
+
   def update
     if @confirmation
       @confirm_buttons.each(&:update)
@@ -75,8 +103,9 @@ class GameMode
 
     @buttons.each(&:update)
 
-    (0...NUM_COLS).each do |i|
-      (0...NUM_ROWS).each do |j|
+    # falling movement
+    (0...NUM_ROWS).each do |j|
+      (0...NUM_COLS).each do |i|
         obj = @objects[i][j]
         next if obj.nil?
 
@@ -93,8 +122,26 @@ class GameMode
       end
     end
 
+    # matches
+    matches = check_matches
+    matches += check_matches(false)
+    matches.each do |m|
+      next unless m && m[:count] >= 3
+
+      if m[:horiz]
+        (m[:col]...(m[:col] + m[:count])).each do |i|
+          @objects[i][m[:row]] = nil
+        end
+      else
+        (m[:row]...(m[:row] + m[:count])).each do |j|
+          @objects[m[:col]][j] = nil
+        end
+      end
+    end
+
     return unless game_cursor?
 
+    # player action
     col = (Mouse.x - @margin.x) / SPHERE_SIZE
     col = NUM_COLS - 2 if col >= NUM_COLS - 1
     mouse_row = (Mouse.y - @margin.y) / SPHERE_SIZE
