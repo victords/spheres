@@ -144,6 +144,10 @@ class Game
       @controller.update
     end
 
+    def needs_cursor?
+      @controller.is_a?(GameMode) ? !@controller.game_cursor? : true
+    end
+
     def draw
       @controller.draw
     end

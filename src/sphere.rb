@@ -1,5 +1,5 @@
 class Sphere
-  attr_accessor :y
+  attr_accessor :x, :y
 
   def initialize(type, locked, x, y)
     @type = type

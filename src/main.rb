@@ -13,7 +13,7 @@ class Window < GameWindow
   end
 
   def needs_cursor?
-    true
+    Game.needs_cursor?
   end
 
   def update

@@ -9,6 +9,7 @@ class GameMode
   def initialize
     @bg = Res.img(:other_bgMain)
     @fg = Res.img(:other_fgMain)
+
     @buttons = [
       Button.new(585, 95, :pause) do
         @paused = !@paused
@@ -42,6 +43,8 @@ class GameMode
       Array.new(NUM_ROWS)
     end
     @margin = Vector.new((SCREEN_WIDTH - SPHERE_SIZE * NUM_COLS) / 2, 95)
+
+    @cursor = MiniGL::Sprite.new(0, 0, :interface_cursor)
   end
 
   def start
@@ -74,12 +77,51 @@ class GameMode
         end
       end
     end
+
+    return unless game_cursor?
+
+    col = (Mouse.x - @margin.x) / SPHERE_SIZE
+    col = NUM_COLS - 2 if col >= NUM_COLS - 1
+    mouse_row = (Mouse.y - @margin.y) / SPHERE_SIZE
+    row = NUM_ROWS - mouse_row - 1
+    row_y = @margin.y + mouse_row * SPHERE_SIZE
+    @cursor.x = @margin.x + col * SPHERE_SIZE
+    @cursor.y = row_y
+    if Mouse.button_pressed?(:left)
+      s1 = @spheres[col][row]
+      s2 = @spheres[col + 1][row]
+      if s1
+        if s2
+          if s1.y == row_y && s2.y == row_y
+            s1.x += SPHERE_SIZE
+            s2.x -= SPHERE_SIZE
+            @spheres[col][row] = s2
+            @spheres[col + 1][row] = s1
+          end
+        elsif s1.y == row_y
+          s1.x += SPHERE_SIZE
+          @spheres[col][row] = nil
+          @spheres[col + 1][row] = s1
+        end
+      elsif s2 && s2.y == row_y
+        s2.x -= SPHERE_SIZE
+        @spheres[col][row] = s2
+        @spheres[col + 1][row] = nil
+      end
+    end
+  end
+
+  def game_cursor?
+    @confirmation.nil? &&
+      Mouse.x >= @margin.x && Mouse.x < @margin.x + NUM_COLS * SPHERE_SIZE &&
+      Mouse.y >= @margin.y && Mouse.y < @margin.y + NUM_ROWS * SPHERE_SIZE
   end
 
   def draw
     @bg.draw(235, 90, 0)
 
     @spheres.flatten.each { |s| s&.draw }
+    @cursor.draw if game_cursor?
 
     @fg.draw(0, 0, 0)
     @buttons.each(&:draw)
