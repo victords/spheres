@@ -1,6 +1,7 @@
 require_relative 'button'
 require_relative 'constants'
 require_relative 'sphere'
+require_relative 'lock'
 
 class GameMode
   NUM_COLS = 8
@@ -39,7 +40,7 @@ class GameMode
 
     @text_helper = TextHelper.new(Game.font)
 
-    @spheres = Array.new(NUM_COLS) do
+    @objects = Array.new(NUM_COLS) do
       Array.new(NUM_ROWS)
     end
     @margin = Vector.new((SCREEN_WIDTH - SPHERE_SIZE * NUM_COLS) / 2, 95)
@@ -54,7 +55,16 @@ class GameMode
   end
 
   def add_sphere(col, row, type, locked = false)
-    @spheres[col][row] = Sphere.new(type, locked, @margin.x + col * SPHERE_SIZE, @margin.y + (NUM_ROWS - row - 1) * SPHERE_SIZE)
+    @objects[col][row] = Sphere.new(type, locked, @margin.x + col * SPHERE_SIZE, @margin.y + (NUM_ROWS - row - 1) * SPHERE_SIZE)
+  end
+
+  def add_lock(col, row)
+    @objects[col][row] = Lock.new(@margin.x + col * SPHERE_SIZE, @margin.y + (NUM_ROWS - row - 1) * SPHERE_SIZE)
+  end
+
+  def can_move?(sphere, col, row, row_y)
+    obj_below = row > 0 && @objects[col][row - 1]
+    sphere&.stopped && sphere.y == row_y && !sphere.locked && (!obj_below || obj_below.y == row_y + SPHERE_SIZE)
   end
 
   def update
@@ -67,13 +77,18 @@ class GameMode
 
     (0...NUM_COLS).each do |i|
       (0...NUM_ROWS).each do |j|
-        next if !@spheres[i][j] || @spheres[i][j - 1]&.y == @spheres[i][j].y + SPHERE_SIZE
-        next if j == 0 && @spheres[i][j].y == @margin.y + (NUM_ROWS - 1) * SPHERE_SIZE
+        obj = @objects[i][j]
+        next if obj.nil?
 
-        @spheres[i][j].y += FALL_SPEED
-        if @spheres[i][j].y > @margin.y + (NUM_ROWS - j - 1) * SPHERE_SIZE
-          @spheres[i][j - 1] = @spheres[i][j]
-          @spheres[i][j] = nil
+        obj.stopped = true
+        next if @objects[i][j - 1]&.y == obj.y + SPHERE_SIZE
+        next if j == 0 && obj.y == @margin.y + (NUM_ROWS - 1) * SPHERE_SIZE
+
+        obj.y += FALL_SPEED
+        obj.stopped = false
+        if obj.y > @margin.y + (NUM_ROWS - j - 1) * SPHERE_SIZE
+          @objects[i][j - 1] = obj
+          @objects[i][j] = nil
         end
       end
     end
@@ -83,31 +98,33 @@ class GameMode
     col = (Mouse.x - @margin.x) / SPHERE_SIZE
     col = NUM_COLS - 2 if col >= NUM_COLS - 1
     mouse_row = (Mouse.y - @margin.y) / SPHERE_SIZE
-    row = NUM_ROWS - mouse_row - 1
     row_y = @margin.y + mouse_row * SPHERE_SIZE
     @cursor.x = @margin.x + col * SPHERE_SIZE
     @cursor.y = row_y
-    if Mouse.button_pressed?(:left)
-      s1 = @spheres[col][row]
-      s2 = @spheres[col + 1][row]
-      if s1
-        if s2
-          if s1.y == row_y && s2.y == row_y
-            s1.x += SPHERE_SIZE
-            s2.x -= SPHERE_SIZE
-            @spheres[col][row] = s2
-            @spheres[col + 1][row] = s1
-          end
-        elsif s1.y == row_y
-          s1.x += SPHERE_SIZE
-          @spheres[col][row] = nil
-          @spheres[col + 1][row] = s1
+    return unless Mouse.button_pressed?(:left)
+
+    row = NUM_ROWS - mouse_row - 1
+    o1 = @objects[col][row]
+    o2 = @objects[col + 1][row]
+    return if o1.is_a?(Lock) || o2.is_a?(Lock)
+
+    if o1
+      if o2
+        if can_move?(o1, col + 1, row, row_y) && can_move?(o2, col, row, row_y)
+          o1.x += SPHERE_SIZE
+          o2.x -= SPHERE_SIZE
+          @objects[col][row] = o2
+          @objects[col + 1][row] = o1
         end
-      elsif s2 && s2.y == row_y
-        s2.x -= SPHERE_SIZE
-        @spheres[col][row] = s2
-        @spheres[col + 1][row] = nil
+      elsif can_move?(o1, col + 1, row, row_y)
+        o1.x += SPHERE_SIZE
+        @objects[col][row] = nil
+        @objects[col + 1][row] = o1
       end
+    elsif can_move?(o2, col, row, row_y)
+      o2.x -= SPHERE_SIZE
+      @objects[col][row] = o2
+      @objects[col + 1][row] = nil
     end
   end
 
@@ -120,7 +137,7 @@ class GameMode
   def draw
     @bg.draw(235, 90, 0)
 
-    @spheres.flatten.each { |s| s&.draw }
+    @objects.flatten.each { |s| s&.draw }
     @cursor.draw if game_cursor?
 
     @fg.draw(0, 0, 0)

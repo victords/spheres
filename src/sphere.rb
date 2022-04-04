@@ -1,5 +1,5 @@
 class Sphere
-  attr_accessor :x, :y
+  attr_accessor :x, :y, :stopped
 
   def initialize(type, locked, x, y)
     @type = type
@@ -7,6 +7,10 @@ class Sphere
     @lock = Res.img(:sprite_cage) if locked
     @x = x
     @y = y
+  end
+
+  def locked
+    @lock
   end
 
   def draw
