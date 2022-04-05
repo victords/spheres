@@ -2,6 +2,7 @@ require_relative 'button'
 require_relative 'constants'
 require_relative 'sphere'
 require_relative 'lock'
+require_relative 'match'
 
 class GameMode
   NUM_COLS = 8
@@ -39,19 +40,22 @@ class GameMode
     ]
 
     @text_helper = TextHelper.new(Game.font)
-
-    @objects = Array.new(NUM_COLS) do
-      Array.new(NUM_ROWS)
-    end
     @margin = Vector.new((SCREEN_WIDTH - SPHERE_SIZE * NUM_COLS) / 2, 95)
-
     @cursor = MiniGL::Sprite.new(0, 0, :interface_cursor)
+
+    start
   end
 
   def start
     @paused = false
     @buttons[0].update_text(:pause)
     @confirmation = nil
+
+    @objects = Array.new(NUM_COLS) do
+      Array.new(NUM_ROWS)
+    end
+    @level = 1
+    @score = 0
   end
 
   def add_sphere(col, row, type, locked = false)
@@ -83,12 +87,13 @@ class GameMode
         end
 
         match = matches[-1]
-        same_line = match && (horizontal ? row == match[:row] : col == match[:col])
-        if same_line && (obj.type == match[:type] || obj.type == :rainbow || match[:type] == :rainbow)
-          match[:type] = obj.type if obj.type != :rainbow
-          match[:count] += 1
+        same_line = match && (horizontal ? row == match.row : col == match.col)
+        if same_line && (obj.type == match.type || obj.type == :rainbow || match.type == :rainbow)
+          match.type = obj.type if obj.type != :rainbow
+          match.chain = obj.chain if obj.chain > match.chain
+          match.count += 1
         else
-          matches << { type: obj.type, horiz: horizontal, col: col, row: row, count: 1 }
+          matches << Match.new(obj.type, horizontal, col, row, obj.chain)
         end
       end
     end
@@ -110,8 +115,8 @@ class GameMode
         next if obj.nil?
 
         obj.stopped = true
-        next if @objects[i][j - 1]&.y == obj.y + SPHERE_SIZE
-        next if j == 0 && obj.y == @margin.y + (NUM_ROWS - 1) * SPHERE_SIZE
+        next if j == 0 && obj.y == @margin.y + (NUM_ROWS - 1) * SPHERE_SIZE ||
+                j > 0 && @objects[i][j - 1]&.y == obj.y + SPHERE_SIZE
 
         obj.y += FALL_SPEED
         obj.stopped = false
@@ -125,18 +130,28 @@ class GameMode
     # matches
     matches = check_matches
     matches += check_matches(false)
+    matches = matches.compact.select { |m| m.count >= 3 }
     matches.each do |m|
-      next unless m && m[:count] >= 3
-
-      if m[:horiz]
-        (m[:col]...(m[:col] + m[:count])).each do |i|
-          @objects[i][m[:row]] = nil
+      @score += MATCH_SCORE[m.count - 3] * 2**m.chain
+      if m.horizontal
+        (m.col...(m.col + m.count)).each do |i|
+          ((m.row + 1)...NUM_ROWS).each do |j|
+            @objects[i][j].chain!(m.chain + 1) if @objects[i][j].is_a?(Sphere)
+          end
+          @objects[i][m.row] = nil
         end
       else
-        (m[:row]...(m[:row] + m[:count])).each do |j|
-          @objects[m[:col]][j] = nil
+        ((m.row + m.count)...NUM_ROWS).each do |j|
+          @objects[m.col][j].chain!(m.chain + 1) if @objects[m.col][j].is_a?(Sphere)
+        end
+        (m.row...(m.row + m.count)).each do |j|
+          @objects[m.col][j] = nil
         end
       end
+    end
+
+    @objects.flatten.select { |o| o.is_a?(Sphere) }.each do |s|
+      s.unchain! if s.stopped
     end
 
     return unless game_cursor?
@@ -188,6 +203,8 @@ class GameMode
     @cursor.draw if game_cursor?
 
     @fg.draw(0, 0, 0)
+    @text_helper.write_line(Locl.text(:level, @level), 10, 105, :left, TEXT_COLOR)
+    @text_helper.write_line(Locl.text(:score, @score), 10, 175, :left, TEXT_COLOR)
     @buttons.each(&:draw)
 
     if @confirmation

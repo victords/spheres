@@ -33,3 +33,5 @@ restart			Reiniciar
 are_you_sure	Tem certeza de que deseja $?
 yes				Sim
 no				Não
+level			Nível: $
+score			Pontos: $

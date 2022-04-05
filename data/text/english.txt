@@ -33,3 +33,5 @@ restart			Restart
 are_you_sure	Are you sure you want to $?
 yes				Yes
 no				No
+level			Level: $
+score			Score: $
