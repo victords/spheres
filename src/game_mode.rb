@@ -5,9 +5,6 @@ require_relative 'lock'
 require_relative 'match'
 
 class GameMode
-  NUM_COLS = 8
-  NUM_ROWS = 12
-
   def initialize
     @bg = Res.img(:other_bgMain)
     @fg = Res.img(:other_fgMain)
@@ -56,10 +53,14 @@ class GameMode
     end
     @level = 1
     @score = 0
+    @matches = []
+    @match_count = 0
   end
 
-  def add_sphere(col, row, type, locked = false)
-    @objects[col][row] = Sphere.new(type, locked, @margin.x + col * SPHERE_SIZE, @margin.y + (NUM_ROWS - row - 1) * SPHERE_SIZE)
+  def add_sphere(col, row, type, locked = false, ceiling = false)
+    y = @margin.y + (NUM_ROWS - row - 1) * SPHERE_SIZE
+    y -= SPHERE_SIZE if ceiling
+    @objects[col][row] = Sphere.new(type, locked, @margin.x + col * SPHERE_SIZE, y)
   end
 
   def add_lock(col, row)
@@ -100,6 +101,15 @@ class GameMode
     matches
   end
 
+  def check_level_up
+    return unless @match_count >= @matches_to_level_up
+
+    @match_count -= @matches_to_level_up
+    @level += 1
+    @matches_to_level_up = MATCHES_TO_LEVEL_UP_BASE + (@level - 1) * MATCHES_TO_LEVEL_UP_INCR
+    @spawn_interval = [SPAWN_INTERVAL_BASE - (@level - 1) * SPAWN_INTERVAL_DECR, SPAWN_INTERVAL_MIN].max
+  end
+
   def update
     if @confirmation
       @confirm_buttons.each(&:update)
@@ -108,50 +118,46 @@ class GameMode
 
     @buttons.each(&:update)
 
-    # falling movement
-    (0...NUM_ROWS).each do |j|
-      (0...NUM_COLS).each do |i|
-        obj = @objects[i][j]
-        next if obj.nil?
-
-        obj.stopped = true
-        next if j == 0 && obj.y == @margin.y + (NUM_ROWS - 1) * SPHERE_SIZE ||
-                j > 0 && @objects[i][j - 1]&.y == obj.y + SPHERE_SIZE
-
-        obj.y += FALL_SPEED
-        obj.stopped = false
-        if obj.y > @margin.y + (NUM_ROWS - j - 1) * SPHERE_SIZE
-          @objects[i][j - 1] = obj
-          @objects[i][j] = nil
-        end
-      end
+    # update existing matches
+    @matches.reverse_each do |m|
+      m.update(@objects)
+      @matches.delete(m) if m.dead?
     end
 
-    # matches
-    matches = check_matches
-    matches += check_matches(false)
-    matches = matches.compact.select { |m| m.count >= 3 }
-    matches.each do |m|
-      @score += MATCH_SCORE[m.count - 3] * 2**m.chain
-      if m.horizontal
-        (m.col...(m.col + m.count)).each do |i|
-          ((m.row + 1)...NUM_ROWS).each do |j|
-            @objects[i][j].chain!(m.chain + 1) if @objects[i][j].is_a?(Sphere)
+    if @matches.empty?
+      # falling movement
+      (0...NUM_ROWS).each do |j|
+        (0...NUM_COLS).each do |i|
+          obj = @objects[i][j]
+          next if obj.nil?
+
+          obj.stopped = true
+          next if j == 0 && obj.y == @margin.y + (NUM_ROWS - 1) * SPHERE_SIZE ||
+                  j > 0 && @objects[i][j - 1]&.y == obj.y + SPHERE_SIZE
+
+          obj.y += FALL_SPEED
+          obj.stopped = false
+          if obj.y > @margin.y + (NUM_ROWS - j - 1) * SPHERE_SIZE
+            @objects[i][j - 1] = obj
+            @objects[i][j] = nil
           end
-          @objects[i][m.row] = nil
-        end
-      else
-        ((m.row + m.count)...NUM_ROWS).each do |j|
-          @objects[m.col][j].chain!(m.chain + 1) if @objects[m.col][j].is_a?(Sphere)
-        end
-        (m.row...(m.row + m.count)).each do |j|
-          @objects[m.col][j] = nil
         end
       end
-    end
 
-    @objects.flatten.select { |o| o.is_a?(Sphere) }.each do |s|
-      s.unchain! if s.stopped
+      # check new matches
+      matches = check_matches
+      matches += check_matches(false)
+      @matches = matches.compact.select { |m| m.count >= 3 }
+      @matches.each do |m|
+        m.set_score_duration
+        @score += m.score
+      end
+      @match_count += @matches.count
+
+      # break chain
+      @objects.flatten.select { |o| o.is_a?(Sphere) }.each do |s|
+        s.unchain! if s.stopped
+      end
     end
 
     return unless game_cursor?
@@ -200,11 +206,12 @@ class GameMode
     @bg.draw(235, 90, 0)
 
     @objects.flatten.each { |s| s&.draw }
+    @matches.each { |m| m.draw(@margin) }
     @cursor.draw if game_cursor?
 
     @fg.draw(0, 0, 0)
-    @text_helper.write_line(Locl.text(:level, @level), 10, 105, :left, TEXT_COLOR)
-    @text_helper.write_line(Locl.text(:score, @score), 10, 175, :left, TEXT_COLOR)
+    Game.text_helper.write_line(Locl.text(:level, @level), 10, 105, :left, TEXT_COLOR)
+    Game.text_helper.write_line(Locl.text(:score, @score), 10, 175, :left, TEXT_COLOR)
     @buttons.each(&:draw)
 
     if @confirmation
@@ -213,11 +220,11 @@ class GameMode
                          0, SCREEN_HEIGHT, 0x80000000,
                          SCREEN_WIDTH, SCREEN_HEIGHT, 0x80000000, 0)
       @dialog.draw((SCREEN_WIDTH - @dialog.width) / 2, (SCREEN_HEIGHT - @dialog.height) / 2, 0)
-      @text_helper.write_line(Locl.text(:are_you_sure, Locl.text(@confirmation).downcase),
-                              SCREEN_WIDTH / 2,
-                              (SCREEN_HEIGHT - @dialog.height) / 2 + 65,
-                              :center,
-                              TEXT_COLOR)
+      Game.text_helper.write_line(Locl.text(:are_you_sure, Locl.text(@confirmation).downcase),
+                                  SCREEN_WIDTH / 2,
+                                  (SCREEN_HEIGHT - @dialog.height) / 2 + 65,
+                                  :center,
+                                  TEXT_COLOR)
       @confirm_buttons.each(&:draw)
     end
   end

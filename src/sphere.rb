@@ -24,9 +24,12 @@ class Sphere < MiniGL::Sprite
     @chain = 0
   end
 
+  def blink
+    animate([0, 1], 8)
+  end
+
   def draw
     super
     @lock&.draw(@x, @y, 0)
-    Game.font.draw_text(@chain.to_s, @x, @y, 0)
   end
 end

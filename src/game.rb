@@ -5,7 +5,7 @@ require_relative 'basic_mode'
 
 class Game
   class << self
-    attr_reader :font, :full_screen, :music_volume, :sound_volume, :scores
+    attr_reader :font, :text_helper, :full_screen, :music_volume, :sound_volume, :scores
 
     def load
       @save_dir =
@@ -62,6 +62,7 @@ class Game
       @language = nil
 
       @font = Res.font(:arialRounded, 24)
+      @text_helper = TextHelper.new(@font)
       @controller = Menu.new
     end
 

@@ -91,8 +91,6 @@ class Menu
       high_scores: 5
     }
 
-    @text_helper = TextHelper.new(Game.font)
-
     Game.play_song(:spheresTheme)
   end
 
@@ -122,35 +120,36 @@ class Menu
   def draw
     @bg.draw(0, 0, 0)
 
+    text_helper = Game.text_helper
     case @state
     when :instructions
       mode_page = @page > 0 && @page < 4
-      @text_helper.write_breaking(Locl.text("instructions_#{@page}".to_sym),
-                                  mode_page ? 500 : SCREEN_WIDTH / 2, 200,
-                                  mode_page ? 450 : 700,
-                                  mode_page ? :right : :center,
-                                  TEXT_COLOR)
+      text_helper.write_breaking(Locl.text("instructions_#{@page}".to_sym),
+                                 mode_page ? 500 : SCREEN_WIDTH / 2, 200,
+                                 mode_page ? 450 : 700,
+                                 mode_page ? :right : :center,
+                                 TEXT_COLOR)
       Res.img("other_screenshot#{@page}").draw(530, 200, 0) if mode_page
     when :options
-      @text_helper.write_line(Locl.text(:lang_name), SCREEN_WIDTH / 2, 215, :center, TEXT_COLOR)
-      @text_helper.write_line(Locl.text(Game.full_screen ? :full_screen : :window), SCREEN_WIDTH / 2, 268, :center, TEXT_COLOR)
-      @text_helper.write_line(Locl.text(:music_volume, Game.music_volume), SCREEN_WIDTH / 2, 321, :center, TEXT_COLOR)
-      @text_helper.write_line(Locl.text(:sound_volume, Game.sound_volume), SCREEN_WIDTH / 2, 374, :center, TEXT_COLOR)
+      text_helper.write_line(Locl.text(:lang_name), SCREEN_WIDTH / 2, 215, :center, TEXT_COLOR)
+      text_helper.write_line(Locl.text(Game.full_screen ? :full_screen : :window), SCREEN_WIDTH / 2, 268, :center, TEXT_COLOR)
+      text_helper.write_line(Locl.text(:music_volume, Game.music_volume), SCREEN_WIDTH / 2, 321, :center, TEXT_COLOR)
+      text_helper.write_line(Locl.text(:sound_volume, Game.sound_volume), SCREEN_WIDTH / 2, 374, :center, TEXT_COLOR)
     when :high_scores
       text = @page == 0 ? Locl.text(:high_scores_0) : Locl.text(:high_scores_1, Locl.text(DIFFICULTIES[@page - 1]))
-      @text_helper.write_line(text, SCREEN_WIDTH / 2, 175, :center, TEXT_COLOR)
+      text_helper.write_line(text, SCREEN_WIDTH / 2, 175, :center, TEXT_COLOR)
       Game.scores[@page].each_with_index do |entry, i|
-        @text_helper.write_line("#{i + 1}. #{entry[0]}", 200, 210 + i * 28, :left, TEXT_COLOR)
-        @text_helper.write_line(entry[1], SCREEN_WIDTH - 200, 210 + i * 28, :right, TEXT_COLOR)
+        text_helper.write_line("#{i + 1}. #{entry[0]}", 200, 210 + i * 28, :left, TEXT_COLOR)
+        text_helper.write_line(entry[1], SCREEN_WIDTH - 200, 210 + i * 28, :right, TEXT_COLOR)
       end
     when :game_mode
-      @text_helper.write_line(Locl.text(:game_mode), SCREEN_WIDTH / 2, 180, :center, TEXT_COLOR)
+      text_helper.write_line(Locl.text(:game_mode), SCREEN_WIDTH / 2, 180, :center, TEXT_COLOR)
     when :dynamic_difficulty
-      @text_helper.write_line(Locl.text(:difficulty), SCREEN_WIDTH / 2, 180, :center, TEXT_COLOR)
+      text_helper.write_line(Locl.text(:difficulty), SCREEN_WIDTH / 2, 180, :center, TEXT_COLOR)
     end
 
     @buttons[@state]&.each(&:draw)
 
-    @text_helper.write_line('v2.0.0', SCREEN_WIDTH - 10, SCREEN_HEIGHT - 20, :right, TEXT_COLOR, 255, nil, 0, 0, 0, 0, 0.5, 0.5)
+    text_helper.write_line('v2.0.0', SCREEN_WIDTH - 10, SCREEN_HEIGHT - 20, :right, TEXT_COLOR, 255, nil, 0, 0, 0, 0, 0.5, 0.5)
   end
 end

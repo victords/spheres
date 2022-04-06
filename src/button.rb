@@ -9,7 +9,6 @@ class Button < MiniGL::Button
       action&.call
       Game.play_sound(back ? :backButtonClick : :buttonClick)
     end
-    @text_helper = MiniGL::TextHelper.new(Game.font)
   end
 
   def update_text(text_id = nil)
@@ -22,6 +21,6 @@ class Button < MiniGL::Button
   def draw
     super
 
-    @text_helper.write_line(@_text, @text_x, @text_y - Game.font.height / 2, :center, 0xffffff, 255, :border, 0x006666, 2, 127)
+    Game.text_helper.write_line(@_text, @text_x, @text_y - Game.font.height / 2, :center, 0xffffff, 255, :border, 0x006666, 2, 127)
   end
 end
