@@ -2,17 +2,14 @@ require 'minigl'
 
 class Sphere < MiniGL::Sprite
   attr_reader :type, :chain
-  attr_accessor :stopped
+  attr_accessor :stopped, :locked
 
   def initialize(type, locked, x, y)
     super(x, y, "sprite_#{type}Sphere", 2, 1)
     @type = type
+    @locked = locked
     @lock = Res.img(:sprite_cage) if locked
     @chain = 0
-  end
-
-  def locked
-    @lock
   end
 
   def chain!(value)

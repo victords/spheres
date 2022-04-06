@@ -149,7 +149,7 @@ class GameMode
       matches += check_matches(false)
       @matches = matches.compact.select { |m| m.count >= 3 }
       @matches.each do |m|
-        m.set_score_duration
+        m.startup(@objects)
         @score += m.score
       end
       @match_count += @matches.count

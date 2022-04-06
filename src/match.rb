@@ -13,9 +13,18 @@ class Match
     @count = 1
   end
 
-  def set_score_duration
+  def startup(objects)
     @score = MATCH_SCORE[@count - 3] * 2**@chain
     @duration = 12 + (@count - 3) * 6 + @chain * 12
+    if @horizontal
+      (@col...(@col + @count)).each do |i|
+        objects[i][@row].locked = true
+      end
+    else
+      (@row...(@row + @count)).each do |j|
+        objects[@col][j].locked = true
+      end
+    end
   end
 
   def dead?
