@@ -132,6 +132,12 @@ class Game
       puts 'starting static mode'
     end
 
+    def add_score(table_index, rank, name, score)
+      @scores[table_index].insert(rank, [name, score])
+      @scores[table_index] = @scores[table_index][0...MAX_HIGH_SCORES_ENTRIES]
+      save_scores
+    end
+
     def quit
       @controller = Menu.new
     end

@@ -21,6 +21,6 @@ class Button < MiniGL::Button
   def draw
     super
 
-    Game.text_helper.write_line(@_text, @text_x, @text_y - Game.font.height / 2, :center, 0xffffff, 255, :border, 0x006666, 2, 127)
+    Game.text_helper.write_line(@_text, @text_x, @text_y - Game.font.height / 2, :center, 0xffffff, @enabled ? 255 : 127, :border, 0x006666, 2, 127)
   end
 end

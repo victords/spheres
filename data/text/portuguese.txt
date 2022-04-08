@@ -35,3 +35,6 @@ yes				Sim
 no				Não
 level			Nível: $
 score			Pontos: $
+game_over		FIM DE JOGO
+enter_name		Digite seu nome:
+ok				OK

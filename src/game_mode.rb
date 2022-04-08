@@ -15,10 +15,18 @@ class GameMode
         @buttons[0].update_text(@paused ? :resume : :pause)
       end,
       Button.new(585, 148, :restart) do
-        @confirmation = :restart
+        if @game_over
+          start
+        else
+          @confirmation = :restart
+        end
       end,
       Button.new(585, 201, :exit) do
-        @confirmation = :exit
+        if @game_over
+          Game.quit
+        else
+          @confirmation = :exit
+        end
       end,
     ]
 
@@ -36,7 +44,27 @@ class GameMode
       end,
     ]
 
-    @text_helper = TextHelper.new(Game.font)
+    @txt_name = MiniGL::TextField.new(
+      x: 225,
+      y: 280,
+      font: Game.font,
+      img: :interface_textField,
+      cursor_img: :interface_textCursor,
+      margin_x: 10,
+      margin_y: 10,
+      max_length: 15,
+      allowed_chars: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%&*()-_=+./? ',
+      text_color: TEXT_COLOR
+    )
+    @high_score_button = Button.new(305, 330, :ok) do
+      if @txt_name.text.empty?
+        @txt_name.focus
+        next
+      end
+      Game.add_score(@high_scores_table_index, @high_scores_rank, @txt_name.text, @score)
+      @game_over = :high_scores
+    end
+
     @margin = Vector.new((SCREEN_WIDTH - SPHERE_SIZE * NUM_COLS) / 2, 95)
     @cursor = MiniGL::Sprite.new(0, 0, :interface_cursor)
 
@@ -45,8 +73,10 @@ class GameMode
 
   def start
     @paused = false
+    @buttons[0].enabled = true
     @buttons[0].update_text(:pause)
-    @confirmation = nil
+    @txt_name.text = ''
+    @confirmation = @game_over = @high_scores_rank = nil
 
     @objects = Array.new(NUM_COLS) do
       Array.new(NUM_ROWS)
@@ -55,6 +85,7 @@ class GameMode
     @score = 0
     @matches = []
     @match_count = 0
+    @high_scores_highlight = 0
   end
 
   def add_sphere(col, row, type, locked = false, ceiling = false)
@@ -101,6 +132,24 @@ class GameMode
     matches
   end
 
+  def check_game_over
+    return unless (0...NUM_COLS).any? { |i| @objects[i][NUM_ROWS - 1]&.stopped }
+
+    high_scores_table = Game.scores[@high_scores_table_index]
+    if (index = high_scores_table.find_index { |e| e[1].to_i <= @score })
+      @high_scores_rank = index
+      @game_over = :enter_name
+      @txt_name.focus
+    elsif high_scores_table.size < MAX_HIGH_SCORES_ENTRIES
+      @high_scores_rank = high_scores_table.size
+      @game_over = :enter_name
+      @txt_name.focus
+    else
+      @game_over = :high_scores
+    end
+    @buttons[0].enabled = false
+  end
+
   def check_level_up
     return unless @match_count >= @matches_to_level_up
 
@@ -113,6 +162,20 @@ class GameMode
   def update
     if @confirmation
       @confirm_buttons.each(&:update)
+      return
+    elsif @game_over
+      if @game_over == :enter_name
+        @txt_name.update
+        @high_score_button.update
+      else
+        @buttons.each(&:update)
+        if @high_scores_rank
+          @high_scores_highlight += 1
+          if @high_scores_highlight >= 120
+            @high_scores_highlight = 0
+          end
+        end
+      end
       return
     end
 
@@ -197,7 +260,7 @@ class GameMode
   end
 
   def game_cursor?
-    @confirmation.nil? &&
+    @confirmation.nil? && @game_over.nil? &&
       Mouse.x >= @margin.x && Mouse.x < @margin.x + NUM_COLS * SPHERE_SIZE &&
       Mouse.y >= @margin.y && Mouse.y < @margin.y + NUM_ROWS * SPHERE_SIZE
   end
@@ -210,8 +273,10 @@ class GameMode
     @cursor.draw if game_cursor?
 
     @fg.draw(0, 0, 0)
-    Game.text_helper.write_line(Locl.text(:level, @level), 10, 105, :left, TEXT_COLOR)
-    Game.text_helper.write_line(Locl.text(:score, @score), 10, 175, :left, TEXT_COLOR)
+
+    text_helper = Game.text_helper
+    text_helper.write_line(Locl.text(:level, @level), 10, 105, :left, TEXT_COLOR)
+    text_helper.write_line(Locl.text(:score, @score), 10, 175, :left, TEXT_COLOR)
     @buttons.each(&:draw)
 
     if @confirmation
@@ -220,12 +285,40 @@ class GameMode
                          0, SCREEN_HEIGHT, 0x80000000,
                          SCREEN_WIDTH, SCREEN_HEIGHT, 0x80000000, 0)
       @dialog.draw((SCREEN_WIDTH - @dialog.width) / 2, (SCREEN_HEIGHT - @dialog.height) / 2, 0)
-      Game.text_helper.write_line(Locl.text(:are_you_sure, Locl.text(@confirmation).downcase),
-                                  SCREEN_WIDTH / 2,
-                                  (SCREEN_HEIGHT - @dialog.height) / 2 + 65,
-                                  :center,
-                                  TEXT_COLOR)
+      text_helper.write_line(Locl.text(:are_you_sure, Locl.text(@confirmation).downcase),
+                             SCREEN_WIDTH / 2,
+                             (SCREEN_HEIGHT - @dialog.height) / 2 + 65,
+                             :center,
+                             TEXT_COLOR)
       @confirm_buttons.each(&:draw)
+    elsif @game_over
+      G.window.draw_quad(0, 0, 0x80000000,
+                         SCREEN_WIDTH, 0, 0x80000000,
+                         0, SCREEN_HEIGHT, 0x80000000,
+                         SCREEN_WIDTH, SCREEN_HEIGHT, 0x80000000, 0) if @game_over == :enter_name
+      text_helper.write_line(Locl.text(:game_over), SCREEN_WIDTH / 2, 120, :center, 0xffffff, 255, :border, 0x006666, 2, 127, 0, 1.5, 1.5)
+      if @game_over == :enter_name
+        @dialog.draw((SCREEN_WIDTH - @dialog.width) / 2, (SCREEN_HEIGHT - @dialog.height) / 2, 0)
+        text_helper.write_line(Locl.text(:enter_name), SCREEN_WIDTH / 2, (SCREEN_HEIGHT - @dialog.height) / 2 + 30, :center, TEXT_COLOR)
+        @txt_name.draw
+        @high_score_button.draw
+      else
+        Game.scores[@high_scores_table_index].each_with_index do |entry, i|
+          color = if i == @high_scores_rank
+                    r = @high_scores_highlight < 60 ?
+                          255 - ((@high_scores_highlight / 60.0) * 255).round :
+                          (((@high_scores_highlight - 60) / 60.0) * 255).round
+                    g_b = @high_scores_highlight < 60 ?
+                          255 - ((@high_scores_highlight / 60.0) * 153).round :
+                          104 + (((@high_scores_highlight - 60) / 60.0) * 153).round
+                    (r << 16) | (g_b << 8) | g_b
+                  else
+                    0xffffff
+                  end
+          text_helper.write_line("#{i + 1}. #{entry[0]}", 250, 200 + i * 28, :left, color, 255, :border, 0x006666, 1, 127)
+          text_helper.write_line(entry[1], SCREEN_WIDTH - 250, 200 + i * 28, :right, color, 255, :border, 0x006666, 1, 127)
+        end
+      end
     end
   end
 end
