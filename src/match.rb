@@ -34,11 +34,11 @@ class Match
   def update(objects)
     if @horizontal
       (@col...(@col + @count)).each do |i|
-        objects[i][@row].blink
+        objects[i][@row]&.blink
       end
     else
       (@row...(@row + @count)).each do |j|
-        objects[@col][j].blink
+        objects[@col][j]&.blink
       end
     end
 
@@ -65,6 +65,6 @@ class Match
   def draw(margin)
     x = margin.x + (@col + ((@horizontal ? @count : 1) * 0.5)) * SPHERE_SIZE
     y = margin.y + (NUM_ROWS - @row - (@horizontal ? 1 : (@count + 1) * 0.5)) * SPHERE_SIZE + 2
-    Game.text_helper.write_line(@score.to_s, x, y, :center, 0xffffff, 255, :border, 0x006666, 2, 127, 0, 1.5, 1.5)
+    Game.text_helper.write_line(@score.to_s, x, y, :center, 0xffffff, 255, :border, 0x006666, 2, 127, 1, 1.5, 1.5)
   end
 end

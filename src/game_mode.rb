@@ -180,6 +180,7 @@ class GameMode
     end
 
     @buttons.each(&:update)
+    return if @paused
 
     # update existing matches
     @matches.reverse_each do |m|
@@ -283,25 +284,27 @@ class GameMode
       G.window.draw_quad(0, 0, 0x80000000,
                          SCREEN_WIDTH, 0, 0x80000000,
                          0, SCREEN_HEIGHT, 0x80000000,
-                         SCREEN_WIDTH, SCREEN_HEIGHT, 0x80000000, 0)
-      @dialog.draw((SCREEN_WIDTH - @dialog.width) / 2, (SCREEN_HEIGHT - @dialog.height) / 2, 0)
+                         SCREEN_WIDTH, SCREEN_HEIGHT, 0x80000000, 100)
+      @dialog.draw((SCREEN_WIDTH - @dialog.width) / 2, (SCREEN_HEIGHT - @dialog.height) / 2, 100)
       text_helper.write_line(Locl.text(:are_you_sure, Locl.text(@confirmation).downcase),
                              SCREEN_WIDTH / 2,
                              (SCREEN_HEIGHT - @dialog.height) / 2 + 65,
-                             :center,
-                             TEXT_COLOR)
-      @confirm_buttons.each(&:draw)
+                             :center, TEXT_COLOR, 255, nil, 0, 0, 0, 100)
+      @confirm_buttons.each { |b| b.draw(100) }
     elsif @game_over
       G.window.draw_quad(0, 0, 0x80000000,
                          SCREEN_WIDTH, 0, 0x80000000,
                          0, SCREEN_HEIGHT, 0x80000000,
-                         SCREEN_WIDTH, SCREEN_HEIGHT, 0x80000000, 0) if @game_over == :enter_name
-      text_helper.write_line(Locl.text(:game_over), SCREEN_WIDTH / 2, 120, :center, 0xffffff, 255, :border, 0x006666, 2, 127, 0, 1.5, 1.5)
+                         SCREEN_WIDTH, SCREEN_HEIGHT, 0x80000000, 100) if @game_over == :enter_name
+      text_helper.write_line(Locl.text(:game_over), SCREEN_WIDTH / 2, 120, :center, 0xffffff, 255, :border, 0x006666, 2, 127, 100, 1.5, 1.5)
       if @game_over == :enter_name
-        @dialog.draw((SCREEN_WIDTH - @dialog.width) / 2, (SCREEN_HEIGHT - @dialog.height) / 2, 0)
-        text_helper.write_line(Locl.text(:enter_name), SCREEN_WIDTH / 2, (SCREEN_HEIGHT - @dialog.height) / 2 + 30, :center, TEXT_COLOR)
-        @txt_name.draw
-        @high_score_button.draw
+        @dialog.draw((SCREEN_WIDTH - @dialog.width) / 2, (SCREEN_HEIGHT - @dialog.height) / 2, 100)
+        text_helper.write_line(Locl.text(:enter_name),
+                               SCREEN_WIDTH / 2,
+                               (SCREEN_HEIGHT - @dialog.height) / 2 + 30,
+                               :center, TEXT_COLOR, 255, nil, 0, 0, 0, 100)
+        @txt_name.draw(255, 100)
+        @high_score_button.draw(100)
       else
         Game.scores[@high_scores_table_index].each_with_index do |entry, i|
           color = if i == @high_scores_rank
@@ -315,8 +318,8 @@ class GameMode
                   else
                     0xffffff
                   end
-          text_helper.write_line("#{i + 1}. #{entry[0]}", 250, 200 + i * 28, :left, color, 255, :border, 0x006666, 1, 127)
-          text_helper.write_line(entry[1], SCREEN_WIDTH - 250, 200 + i * 28, :right, color, 255, :border, 0x006666, 1, 127)
+          text_helper.write_line("#{i + 1}. #{entry[0]}", 250, 200 + i * 28, :left, color, 255, :border, 0x006666, 1, 127, 100)
+          text_helper.write_line(entry[1], SCREEN_WIDTH - 250, 200 + i * 28, :right, color, 255, :border, 0x006666, 1, 127, 100)
         end
       end
     end

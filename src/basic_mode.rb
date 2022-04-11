@@ -10,7 +10,7 @@ class BasicMode < GameMode
 
   def start
     super
-    @spawn_timer = 0
+    @spawn_timer = SPAWN_INTERVAL_BASE - 30
     @spawn_interval = SPAWN_INTERVAL_BASE
     @matches_to_level_up = MATCHES_TO_LEVEL_UP_BASE
   end
