@@ -3,6 +3,7 @@ require_relative 'constants'
 require_relative 'sphere'
 require_relative 'lock'
 require_relative 'match'
+require_relative 'text_effect'
 
 class GameMode
   def initialize
@@ -86,6 +87,7 @@ class GameMode
     @matches = []
     @match_count = 0
     @high_scores_highlight = 0
+    @effects = []
   end
 
   def add_sphere(col, row, type, locked = false, ceiling = false)
@@ -157,6 +159,7 @@ class GameMode
     @level += 1
     @matches_to_level_up = MATCHES_TO_LEVEL_UP_BASE + (@level - 1) * MATCHES_TO_LEVEL_UP_INCR
     @spawn_interval = [SPAWN_INTERVAL_BASE - (@level - 1) * SPAWN_INTERVAL_DECR, SPAWN_INTERVAL_MIN].max
+    @effects << TextEffect.new(SCREEN_WIDTH / 2, 250, Locl.text(:level_up), 120)
   end
 
   def update
@@ -181,6 +184,11 @@ class GameMode
 
     @buttons.each(&:update)
     return if @paused
+
+    @effects.reverse_each do |e|
+      e.update
+      @effects.delete(e) if e.dead?
+    end
 
     # update existing matches
     @matches.reverse_each do |m|
@@ -214,6 +222,11 @@ class GameMode
       @matches = matches.compact.select { |m| m.count >= 3 }
       @matches.each do |m|
         m.startup(@objects)
+        @effects << TextEffect.new(
+          @margin.x + (m.col + ((m.horizontal ? m.count : 1) * 0.5)) * SPHERE_SIZE,
+          @margin.y + (NUM_ROWS - m.row - (m.horizontal ? 1 : (m.count + 1) * 0.5)) * SPHERE_SIZE + 2,
+          m.score.to_s
+        )
         @score += m.score
       end
       @match_count += @matches.count
@@ -270,7 +283,7 @@ class GameMode
     @bg.draw(235, 90, 0)
 
     @objects.flatten.each { |s| s&.draw }
-    @matches.each { |m| m.draw(@margin) }
+    @effects.each(&:draw)
     @cursor.draw if game_cursor?
 
     @fg.draw(0, 0, 0)

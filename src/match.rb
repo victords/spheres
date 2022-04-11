@@ -2,7 +2,7 @@ require_relative 'constants'
 
 class Match
   attr_accessor :type, :chain, :count
-  attr_reader :col, :row, :score
+  attr_reader :col, :row, :score, :horizontal
 
   def initialize(type, horizontal, col, row, chain)
     @type = type
@@ -25,6 +25,8 @@ class Match
         objects[@col][j].locked = true
       end
     end
+
+    @sound = Game.play_sound(:blink)
   end
 
   def dead?
@@ -45,6 +47,8 @@ class Match
     @duration -= 1
     return if @duration > 0
 
+    @sound.stop
+    Game.play_sound(:crash)
     if @horizontal
       (@col...(@col + @count)).each do |i|
         ((@row + 1)...NUM_ROWS).each do |j|
@@ -60,11 +64,5 @@ class Match
         objects[@col][j] = nil
       end
     end
-  end
-
-  def draw(margin)
-    x = margin.x + (@col + ((@horizontal ? @count : 1) * 0.5)) * SPHERE_SIZE
-    y = margin.y + (NUM_ROWS - @row - (@horizontal ? 1 : (@count + 1) * 0.5)) * SPHERE_SIZE + 2
-    Game.text_helper.write_line(@score.to_s, x, y, :center, 0xffffff, 255, :border, 0x006666, 2, 127, 1, 1.5, 1.5)
   end
 end

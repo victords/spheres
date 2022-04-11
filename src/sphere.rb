@@ -22,7 +22,7 @@ class Sphere < MiniGL::Sprite
   end
 
   def blink
-    animate([0, 1], 8)
+    animate([0, 1], 5)
   end
 
   def draw

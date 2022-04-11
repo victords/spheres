@@ -35,6 +35,7 @@ yes				Sim
 no				Não
 level			Nível: $
 score			Pontos: $
+level_up		Próximo Nível!
 game_over		FIM DE JOGO
 enter_name		Digite seu nome:
 ok				OK

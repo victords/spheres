@@ -35,6 +35,7 @@ yes				Yes
 no				No
 level			Level: $
 score			Score: $
+level_up		Level Up!
 game_over		GAME OVER
 enter_name		Enter your name:
 ok				OK
