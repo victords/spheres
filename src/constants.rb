@@ -15,6 +15,7 @@ SPAWN_INTERVAL_BASE = 180
 SPAWN_INTERVAL_DECR = 9
 SPAWN_INTERVAL_MIN = 27
 MAX_HIGH_SCORES_ENTRIES = 10
+BASIC_SPHERE_TYPES = %i[red green blue cyan magenta yellow].freeze
 
 Locl = MiniGL::Localization
 Vector = MiniGL::Vector

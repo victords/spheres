@@ -96,8 +96,10 @@ class GameMode
     @objects[col][row] = Sphere.new(type, locked, @margin.x + col * SPHERE_SIZE, y)
   end
 
-  def add_lock(col, row)
-    @objects[col][row] = Lock.new(@margin.x + col * SPHERE_SIZE, @margin.y + (NUM_ROWS - row - 1) * SPHERE_SIZE)
+  def add_lock(col, row, ceiling = true)
+    y = @margin.y + (NUM_ROWS - row - 1) * SPHERE_SIZE
+    y -= SPHERE_SIZE if ceiling
+    @objects[col][row] = Lock.new(@margin.x + col * SPHERE_SIZE, y)
   end
 
   def can_move?(sphere, col, row, row_y)
@@ -122,10 +124,32 @@ class GameMode
 
         match = matches[-1]
         same_line = match && (horizontal ? row == match.row : col == match.col)
-        if same_line && (obj.type == match.type || obj.type == :rainbow || match.type == :rainbow)
-          match.type = obj.type if obj.type != :rainbow
-          match.chain = obj.chain if obj.chain > match.chain
-          match.count += 1
+        if same_line
+          if obj.type == match.type
+            match.chain = obj.chain if obj.chain > match.chain
+            match.count += 1
+          elsif match.type.to_s.end_with?('rainbow')
+            if obj.type == match.type.to_s.split('_')[0].to_sym
+              match.chain = obj.chain if obj.chain > match.chain
+              match.count += 1
+            else
+              p_col = horizontal ? col - 1 : col
+              p_row = horizontal ? row : row - 1
+              if @objects[p_col][p_row].type == :rainbow
+                chain = [@objects[p_col][p_row].chain, obj.chain].max
+                matches << Match.new("#{obj.type}_rainbow".to_sym, horizontal, p_col, p_row, chain)
+                matches[-1].count = 2
+              else
+                matches << Match.new(obj.type, horizontal, col, row, obj.chain)
+              end
+            end
+          elsif obj.type == :rainbow
+            match.type = "#{match.type}_rainbow".to_sym
+            match.chain = obj.chain if obj.chain > match.chain
+            match.count += 1
+          else
+            matches << Match.new(obj.type, horizontal, col, row, obj.chain)
+          end
         else
           matches << Match.new(obj.type, horizontal, col, row, obj.chain)
         end
@@ -274,7 +298,7 @@ class GameMode
   end
 
   def game_cursor?
-    @confirmation.nil? && @game_over.nil? &&
+    @confirmation.nil? && @game_over.nil? && !@paused &&
       Mouse.x >= @margin.x && Mouse.x < @margin.x + NUM_COLS * SPHERE_SIZE &&
       Mouse.y >= @margin.y && Mouse.y < @margin.y + NUM_ROWS * SPHERE_SIZE
   end

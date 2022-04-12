@@ -2,6 +2,7 @@ require 'rbconfig'
 require 'fileutils'
 require_relative 'menu'
 require_relative 'basic_mode'
+require_relative 'dynamic_mode'
 
 class Game
   class << self
@@ -125,7 +126,7 @@ class Game
     end
 
     def start_dynamic(difficulty)
-      puts "starting dynamic mode (#{difficulty})"
+      @controller = DynamicMode.new(difficulty)
     end
 
     def start_static
