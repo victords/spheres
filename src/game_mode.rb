@@ -128,6 +128,10 @@ class GameMode
           if obj.type == match.type
             match.chain = obj.chain if obj.chain > match.chain
             match.count += 1
+          elsif obj.type == :rainbow
+            match.type = "#{match.type}_rainbow".to_sym unless match.type.to_s.end_with?('rainbow')
+            match.chain = obj.chain if obj.chain > match.chain
+            match.count += 1
           elsif match.type.to_s.end_with?('rainbow')
             if obj.type == match.type.to_s.split('_')[0].to_sym
               match.chain = obj.chain if obj.chain > match.chain
@@ -143,10 +147,6 @@ class GameMode
                 matches << Match.new(obj.type, horizontal, col, row, obj.chain)
               end
             end
-          elsif obj.type == :rainbow
-            match.type = "#{match.type}_rainbow".to_sym
-            match.chain = obj.chain if obj.chain > match.chain
-            match.count += 1
           else
             matches << Match.new(obj.type, horizontal, col, row, obj.chain)
           end
@@ -255,10 +255,16 @@ class GameMode
       end
       @match_count += @matches.count
 
-      @objects.flatten.each do |o|
-        # break chain
-        o.unchain! if o.is_a?(Sphere) && o.stopped
-        o.update if o.is_a?(Lock)
+      (0...NUM_ROWS).each do |j|
+        (0...NUM_COLS).each do |i|
+          obj = @objects[i][j]
+          if obj.is_a?(Sphere) && obj.stopped
+            obj.unchain!
+          elsif obj.is_a?(Lock)
+            obj.update
+            @objects[i][j] = nil if obj.dead?
+          end
+        end
       end
     end
 
@@ -272,11 +278,10 @@ class GameMode
     row_y = @margin.y + mouse_row * SPHERE_SIZE
     @cursor.x = @margin.x + col * SPHERE_SIZE
     @cursor.y = row_y
-    return unless Mouse.button_pressed?(:left)
 
     if block_given?
-      yield col, row
-    else
+      yield row
+    elsif Mouse.button_pressed?(:left)
       o1 = @objects[col][row]
       o2 = @objects[col + 1][row]
       return if o1.is_a?(Lock) || o2.is_a?(Lock)

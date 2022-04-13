@@ -19,7 +19,7 @@ class Lock < MiniGL::Sprite
   def update
     return if @locked
 
-    animate_once([1, 2, 3, 4], 8) do
+    animate_once([1, 2, 3, 4], 5) do
       @dead = true
     end
   end

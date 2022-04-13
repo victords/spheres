@@ -1,13 +1,21 @@
 require 'minigl'
+require_relative 'constants'
 require_relative 'sphere'
 require_relative 'lock'
 
 class Item
-  def initialize(type, level, arg)
+  attr_reader :type, :level, :arg
+
+  def initialize(type, level)
     @type = type
-    @level = level
-    @arg = arg
-    @count = 2 * level if type == :key
+    if type == :key
+      @level = [2 * level, 20].min
+    elsif type == :bomb
+      @level = [level, 5].min
+    elsif type == :line_converter
+      @level = [level, 6].min
+      @arg = BASIC_SPHERE_TYPES.sample
+    end
   end
 
   def icon
@@ -22,14 +30,16 @@ class Item
   def use(game, objects, col, row)
     case @type
     when :key
-      return false unless objects[col][row].is_a?(Lock)
+      return false unless objects[col][row].is_a?(Lock) && objects[col][row].stopped
 
       objects[col][row].unlock
-      @count -= 1
-      @count <= 0
+      @level -= 1
+      @level <= 0
     when :bomb
       ((col - @level)..(col + @level)).each do |i|
         ((row - @level + (col - i).abs)..(row + @level - (col - i).abs)).each do |j|
+          next if i < 0 || i >= NUM_COLS || j < 0 || j >= NUM_ROWS
+
           game.add_bomb_effect(i, j)
           objects[i][j] = nil
         end

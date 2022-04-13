@@ -1,5 +1,7 @@
+require 'minigl'
 require_relative 'game_mode'
 require_relative 'item'
+require_relative 'item_cursor'
 
 class DynamicMode < GameMode
   def initialize(difficulty)
@@ -10,10 +12,19 @@ class DynamicMode < GameMode
       when :easy   then [1, [1, 2, 3]]
       when :normal then [2, [2, 4, 6]]
       when :hard   then [3, [3, 6, 9]]
-      else              [4, [4, 8, 12]]
+      else              [4, [5, 10, 15]]
       end
 
     @item_slot = Res.img(:interface_itemShower)
+    @item_button = Button.new(25, 400, :use) do
+      if @using_item
+        cancel_item
+      else
+        @cursor = ItemCursor.new(@item.type, @item.level, @item.arg)
+        @item_button.update_text(:cancel)
+        @using_item = true
+      end
+    end
   end
 
   def start
@@ -51,8 +62,8 @@ class DynamicMode < GameMode
     return if @item_score < @item_score_to_level_up
 
     item_type = ITEM_TYPES.sample
-    @item = Item.new(item_type, @item_level, item_type == :line_converter ? BASIC_SPHERE_TYPES.sample : nil)
-    @using_item = true
+    @item = Item.new(item_type, @item_level)
+    @effects << TextEffect.new(SCREEN_WIDTH / 2, 290, Locl.text(:item_obtained), 120)
 
     @item_score -= @item_score_to_level_up
     @item_level += 1
@@ -65,22 +76,44 @@ class DynamicMode < GameMode
                                    :fx_blast, 3, 1, 8, [2, 1, 0, 1, 2])
   end
 
+  def cancel_item
+    @using_item = false
+    @cursor = MiniGL::Sprite.new(0, 0, :interface_cursor)
+    @item_button.update_text(:use)
+  end
+
   def update
     prev_score = @score
+    @cursor.update if @cursor.is_a?(ItemCursor)
+
     if @using_item
-      super do |col, row|
-        if @item.use(self, @objects, col, row)
-          @item = nil
-          @using_item = false
+      super do |row|
+        col = (Mouse.x - @margin.x) / SPHERE_SIZE
+        if @item.type == :line_converter
+          col = [NUM_COLS - @item.level - 2, col].min
+        end
+        @cursor.x = @margin.x + col * SPHERE_SIZE
+
+        if Mouse.button_pressed?(:left)
+          used = @item.use(self, @objects, col, row)
+          @cursor.click do
+            if used
+              @item = nil
+              cancel_item
+            end
+          end
         end
       end
     else
       super
     end
+
     @item_score += @score - prev_score
-    @using_item = false if Mouse.button_pressed?(:right)
+    cancel_item if Mouse.button_pressed?(:right)
 
     return if @confirmation || @game_over || @paused
+
+    @item_button.update if @item
 
     check_game_over
     return if @game_over
@@ -114,6 +147,8 @@ class DynamicMode < GameMode
 
     if @item
       @item.icon.draw(90, 310, 0)
+      @item_button.draw
+      Game.text_helper.write_line(@item.level, 146, 348, :right, 0xffffff) if @item.type == :key
     end
   end
 end

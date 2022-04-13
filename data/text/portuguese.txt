@@ -39,3 +39,6 @@ level_up		Próximo Nível!
 game_over		FIM DE JOGO
 enter_name		Digite seu nome:
 ok				OK
+use				Usar
+cancel			Cancelar
+item_obtained	Item obtido!

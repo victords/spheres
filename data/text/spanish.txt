@@ -35,7 +35,10 @@ yes				Sí
 no				No
 level			Nivel: $
 score			Puntos: $
-level_up		Próximo Nivel!
+level_up		¡Próximo Nivel!
 game_over		FIN DE JUEGO
 enter_name		Escribe tu nombre:
 ok				OK
+use				Usar
+cancel			Cancelar
+item_obtained	¡Ítem obtenido!
