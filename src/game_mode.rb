@@ -255,9 +255,10 @@ class GameMode
       end
       @match_count += @matches.count
 
-      # break chain
-      @objects.flatten.select { |o| o.is_a?(Sphere) }.each do |s|
-        s.unchain! if s.stopped
+      @objects.flatten.each do |o|
+        # break chain
+        o.unchain! if o.is_a?(Sphere) && o.stopped
+        o.update if o.is_a?(Lock)
       end
     end
 
@@ -267,33 +268,37 @@ class GameMode
     col = (Mouse.x - @margin.x) / SPHERE_SIZE
     col = NUM_COLS - 2 if col >= NUM_COLS - 1
     mouse_row = (Mouse.y - @margin.y) / SPHERE_SIZE
+    row = NUM_ROWS - mouse_row - 1
     row_y = @margin.y + mouse_row * SPHERE_SIZE
     @cursor.x = @margin.x + col * SPHERE_SIZE
     @cursor.y = row_y
     return unless Mouse.button_pressed?(:left)
 
-    row = NUM_ROWS - mouse_row - 1
-    o1 = @objects[col][row]
-    o2 = @objects[col + 1][row]
-    return if o1.is_a?(Lock) || o2.is_a?(Lock)
+    if block_given?
+      yield col, row
+    else
+      o1 = @objects[col][row]
+      o2 = @objects[col + 1][row]
+      return if o1.is_a?(Lock) || o2.is_a?(Lock)
 
-    if o1
-      if o2
-        if can_move?(o1, col + 1, row, row_y) && can_move?(o2, col, row, row_y)
+      if o1
+        if o2
+          if can_move?(o1, col + 1, row, row_y) && can_move?(o2, col, row, row_y)
+            o1.x += SPHERE_SIZE
+            o2.x -= SPHERE_SIZE
+            @objects[col][row] = o2
+            @objects[col + 1][row] = o1
+          end
+        elsif can_move?(o1, col + 1, row, row_y)
           o1.x += SPHERE_SIZE
-          o2.x -= SPHERE_SIZE
-          @objects[col][row] = o2
+          @objects[col][row] = nil
           @objects[col + 1][row] = o1
         end
-      elsif can_move?(o1, col + 1, row, row_y)
-        o1.x += SPHERE_SIZE
-        @objects[col][row] = nil
-        @objects[col + 1][row] = o1
+      elsif can_move?(o2, col, row, row_y)
+        o2.x -= SPHERE_SIZE
+        @objects[col][row] = o2
+        @objects[col + 1][row] = nil
       end
-    elsif can_move?(o2, col, row, row_y)
-      o2.x -= SPHERE_SIZE
-      @objects[col][row] = o2
-      @objects[col + 1][row] = nil
     end
   end
 

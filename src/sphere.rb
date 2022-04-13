@@ -25,6 +25,11 @@ class Sphere < MiniGL::Sprite
     animate([0, 1], 5)
   end
 
+  def type=(value)
+    @type = value
+    @img = Res.imgs("sprite_#{@type}Sphere", 2, 1)
+  end
+
   def draw
     super
     @lock&.draw(@x, @y, 0)
