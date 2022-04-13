@@ -19,6 +19,7 @@ ITEM_SCORE_INCREASE = 25
 ITEM_TYPES = %i[key bomb line_converter].freeze
 BASIC_SPHERE_TYPES = %i[red green blue cyan magenta yellow].freeze
 MAX_HIGH_SCORES_ENTRIES = 10
+TOTAL_STATIC_LEVELS = 20
 
 Locl = MiniGL::Localization
 Vector = MiniGL::Vector

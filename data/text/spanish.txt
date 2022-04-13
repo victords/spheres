@@ -43,3 +43,8 @@ use				Usar
 cancel			Cancelar
 item_obtained	¡Ítem obtenido!
 paused			En pausa
+choose_level	Selecciona el nivel
+min_score		Obtén $ o más puntos.
+clear_all		Elimina todas las esferas.
+completed		¡Nivel completado!
+all_completed	¡FELICITACIONES!

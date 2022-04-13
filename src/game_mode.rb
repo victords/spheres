@@ -2,6 +2,7 @@ require_relative 'button'
 require_relative 'constants'
 require_relative 'sphere'
 require_relative 'lock'
+require_relative 'block'
 require_relative 'match'
 require_relative 'text_effect'
 
@@ -225,7 +226,7 @@ class GameMode
       (0...NUM_ROWS).each do |j|
         (0...NUM_COLS).each do |i|
           obj = @objects[i][j]
-          next if obj.nil?
+          next if obj.nil? || obj.is_a?(Block)
 
           obj.stopped = true
           next if j == 0 && obj.y == @margin.y + (NUM_ROWS - 1) * SPHERE_SIZE ||
@@ -284,7 +285,7 @@ class GameMode
     elsif Mouse.button_pressed?(:left)
       o1 = @objects[col][row]
       o2 = @objects[col + 1][row]
-      if o1.is_a?(Lock) || o2.is_a?(Lock)
+      if o1.is_a?(Lock) || o2.is_a?(Lock) || o1.is_a?(Block) || o2.is_a?(Block)
         Game.play_sound(:swapImpossible)
         return
       end
@@ -328,7 +329,7 @@ class GameMode
   def draw
     @bg.draw(235, 90, 0)
 
-    @objects.flatten.each { |s| s&.draw }
+    @objects.flatten.each { |o| o&.draw }
     @effects.each(&:draw)
     @cursor.draw if game_cursor?
 

@@ -4,7 +4,7 @@ require_relative 'constants'
 class Menu
   DIFFICULTIES = %i[easy normal hard expert]
 
-  def initialize
+  def initialize(state = :main)
     @bg = Res.img(:other_bgStart)
 
     @buttons = {
@@ -67,7 +67,7 @@ class Menu
           @state = :dynamic_difficulty
         end,
         Button.new(305, 380, :static) do
-          Game.start_static
+          @state = :static_level
         end,
         Button.new(305, 480, :back, true) do
           @state = :main
@@ -82,10 +82,20 @@ class Menu
           Button.new(305, 480, :back, true) do
             @state = :game_mode
           end
+        ),
+      static_level:
+        (0...Game.scores[5]).map do |i|
+          Button.new((i % 4) * 194 + 14, (i / 4) * 50 + 240, nil, false, (i + 1).to_s) do
+            Game.start_static(i + 1)
+          end
+        end.push(
+          Button.new(305, 510, :back, true) do
+            @state = :game_mode
+          end
         )
     }
 
-    @state = :main
+    @state = state
     @page_count = {
       instructions: 5,
       high_scores: 5
@@ -146,6 +156,8 @@ class Menu
       text_helper.write_line(Locl.text(:game_mode), SCREEN_WIDTH / 2, 180, :center, TEXT_COLOR)
     when :dynamic_difficulty
       text_helper.write_line(Locl.text(:difficulty), SCREEN_WIDTH / 2, 180, :center, TEXT_COLOR)
+    when :static_level
+      text_helper.write_line(Locl.text(:choose_level), SCREEN_WIDTH / 2, 180, :center, TEXT_COLOR)
     end
 
     @buttons[@state]&.each(&:draw)

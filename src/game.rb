@@ -3,6 +3,7 @@ require 'fileutils'
 require_relative 'menu'
 require_relative 'basic_mode'
 require_relative 'dynamic_mode'
+require_relative 'static_mode'
 
 class Game
   class << self
@@ -129,8 +130,12 @@ class Game
       @controller = DynamicMode.new(difficulty)
     end
 
-    def start_static
-      puts 'starting static mode'
+    def start_static(level)
+      @controller = StaticMode.new(level)
+      if level > @scores[5]
+        @scores[5] = level
+        save_scores
+      end
     end
 
     def add_score(table_index, rank, name, score)
@@ -139,8 +144,8 @@ class Game
       save_scores
     end
 
-    def quit
-      @controller = Menu.new
+    def quit(force_main = false)
+      @controller = Menu.new(@controller.is_a?(StaticMode) && !force_main ? :static_level : :main)
     end
 
     def update

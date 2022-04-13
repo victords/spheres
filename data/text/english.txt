@@ -43,3 +43,8 @@ use				Use
 cancel			Cancel
 item_obtained	Item obtained!
 paused			Paused
+choose_level	Choose the level
+min_score		Get $ or more points.
+clear_all		Destroy all spheres.
+completed		Level completed!
+all_completed	CONGRATULATIONS!
