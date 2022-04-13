@@ -52,13 +52,13 @@ class Match
     if @horizontal
       (@col...(@col + @count)).each do |i|
         ((@row + 1)...NUM_ROWS).each do |j|
-          objects[i][j].chain!(@chain + 1) if objects[i][j].is_a?(Sphere)
+          objects[i][j].chain!(@chain + 1) if objects[i][j].is_a?(Sphere) && objects[i][j].stopped
         end
         objects[i][@row] = nil
       end
     else
       ((@row + @count)...NUM_ROWS).each do |j|
-        objects[@col][j].chain!(@chain + 1) if objects[@col][j].is_a?(Sphere)
+        objects[@col][j].chain!(@chain + 1) if objects[@col][j].is_a?(Sphere) && objects[@col][j].stopped
       end
       (@row...(@row + @count)).each do |j|
         objects[@col][j] = nil

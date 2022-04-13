@@ -42,3 +42,4 @@ ok				OK
 use				Usar
 cancel			Cancelar
 item_obtained	¡Ítem obtenido!
+paused			En pausa

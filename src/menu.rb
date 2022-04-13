@@ -75,7 +75,7 @@ class Menu
       ],
       dynamic_difficulty:
         DIFFICULTIES.map.with_index do |diff, i|
-          Button.new(305, 240 + i * 50, diff) do
+          Button.new(305, 240 + i * 53, diff) do
             Game.start_dynamic(diff)
           end
         end.push(

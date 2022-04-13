@@ -33,6 +33,7 @@ class Item
       return false unless objects[col][row].is_a?(Lock) && objects[col][row].stopped
 
       objects[col][row].unlock
+      Game.play_sound(:openLock)
       @level -= 1
       @level <= 0
     when :bomb
@@ -44,11 +45,13 @@ class Item
           objects[i][j] = nil
         end
       end
+      Game.play_sound(:bomb)
       true
     when :line_converter
       (col..(col + @level + 1)).each do |i|
         objects[i][row].type = @arg if objects[i][row].is_a?(Sphere)
       end
+      Game.play_sound(:lineConverter)
       true
     end
   end

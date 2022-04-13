@@ -42,3 +42,4 @@ ok				OK
 use				Use
 cancel			Cancel
 item_obtained	Item obtained!
+paused			Paused

@@ -284,7 +284,10 @@ class GameMode
     elsif Mouse.button_pressed?(:left)
       o1 = @objects[col][row]
       o2 = @objects[col + 1][row]
-      return if o1.is_a?(Lock) || o2.is_a?(Lock)
+      if o1.is_a?(Lock) || o2.is_a?(Lock)
+        Game.play_sound(:swapImpossible)
+        return
+      end
 
       if o1
         if o2
@@ -293,16 +296,25 @@ class GameMode
             o2.x -= SPHERE_SIZE
             @objects[col][row] = o2
             @objects[col + 1][row] = o1
+            Game.play_sound(:swap)
+          else
+            Game.play_sound(:swapImpossible)
           end
         elsif can_move?(o1, col + 1, row, row_y)
           o1.x += SPHERE_SIZE
           @objects[col][row] = nil
           @objects[col + 1][row] = o1
+          Game.play_sound(:swap)
+        else
+          Game.play_sound(:swapImpossible)
         end
       elsif can_move?(o2, col, row, row_y)
         o2.x -= SPHERE_SIZE
         @objects[col][row] = o2
         @objects[col + 1][row] = nil
+        Game.play_sound(:swap)
+      else
+        Game.play_sound(:swapImpossible)
       end
     end
   end
@@ -326,6 +338,10 @@ class GameMode
     text_helper.write_line(Locl.text(:level, @level), 10, 105, :left, TEXT_COLOR)
     text_helper.write_line(Locl.text(:score, @score), 10, 175, :left, TEXT_COLOR)
     @buttons.each(&:draw)
+
+    if @paused
+      text_helper.write_line(Locl.text(:paused), SCREEN_WIDTH / 2, 300, :center, 0xffffff, 255, :border, 0x006666, 2, 127, 1, 1.5, 1.5)
+    end
 
     if @confirmation
       G.window.draw_quad(0, 0, 0x80000000,
