@@ -100,8 +100,6 @@ class Menu
       instructions: 5,
       high_scores: 5
     }
-
-    Game.play_song(:spheresTheme)
   end
 
   def set_page(state, num)

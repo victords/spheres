@@ -25,7 +25,7 @@ class GameMode
       end,
       Button.new(585, 201, :exit) do
         if @game_over
-          Game.quit
+          Game.show_menu
         else
           @confirmation = :exit
         end
@@ -38,7 +38,7 @@ class GameMode
         if @confirmation == :restart
           start
         else
-          Game.quit
+          Game.show_menu
         end
       end,
       Button.new(420, 330, :no, true) do

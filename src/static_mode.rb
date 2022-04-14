@@ -74,7 +74,7 @@ class StaticMode < GameMode
             @timer = 120
           end
         else
-          Game.quit(true)
+          Game.show_menu(true)
         end
       end
       return

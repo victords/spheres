@@ -1,3 +1,5 @@
+powered_by		Feito com
+game_by			Um jogo por
 play			Jogar
 instructions	Instruções
 options			Opções

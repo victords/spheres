@@ -1,3 +1,5 @@
+powered_by		Desarrollado con
+game_by			Un juego de
 play			Jugar
 instructions	Instrucciones
 options			Opciones

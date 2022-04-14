@@ -1,5 +1,6 @@
 require 'rbconfig'
 require 'fileutils'
+require_relative 'presentation'
 require_relative 'menu'
 require_relative 'basic_mode'
 require_relative 'dynamic_mode'
@@ -65,7 +66,7 @@ class Game
 
       @font = Res.font(:arialRounded, 24)
       @text_helper = TextHelper.new(@font)
-      @controller = Menu.new
+      @controller = Presentation.new
     end
 
     def play_song(id)
@@ -122,6 +123,10 @@ class Game
       end
     end
 
+    def show_menu(force_main = false)
+      @controller = Menu.new(@controller.is_a?(StaticMode) && !force_main ? :static_level : :main)
+    end
+
     def start_basic
       @controller = BasicMode.new
     end
@@ -142,10 +147,6 @@ class Game
       @scores[table_index].insert(rank, [name, score])
       @scores[table_index] = @scores[table_index][0...MAX_HIGH_SCORES_ENTRIES]
       save_scores
-    end
-
-    def quit(force_main = false)
-      @controller = Menu.new(@controller.is_a?(StaticMode) && !force_main ? :static_level : :main)
     end
 
     def update
