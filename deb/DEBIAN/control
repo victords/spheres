@@ -1,0 +1,11 @@
+Package: spheres
+Priority: optional
+Version: 2.0.0
+Architecture: all
+Maintainer: Victor David Santos <victordavidsantos@gmail.com>
+Installed-Size: 4524
+Depends: build-essential, libsdl2-dev, libgl1-mesa-dev, libopenal-dev, libsndfile-dev, libmpg123-dev, libgmp-dev, libfontconfig1-dev, ruby, ruby-dev
+Homepage: https://github.com/victords/spheres
+Section: games
+Description: Spheres
+ Spheres is a match-3 game with 3 different game modes.

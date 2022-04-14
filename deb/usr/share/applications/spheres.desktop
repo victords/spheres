@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=Spheres
+GenericName=Puzzle Game
+Comment=Play a match-3 game
+Icon=spheres
+Exec=ruby /opt/vds-games/spheres/src/main.rb
+Terminal=false
+StartupNotify=false
+Categories=Game;LogicGame
+Name[en_US]=Spheres

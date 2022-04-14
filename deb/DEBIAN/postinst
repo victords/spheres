@@ -1,0 +1,4 @@
+#!/bin/sh
+set -e
+gem install minigl -v 2.4.0 --conservative
+exit 0
