@@ -85,7 +85,7 @@ class Menu
         ),
       static_level:
         (0...Game.scores[5]).map do |i|
-          Button.new((i % 4) * 194 + 14, (i / 4) * 50 + 240, nil, false, (i + 1).to_s) do
+          Button.new((i % 4) * 194 + 14, (i / 4) * 53 + 230, nil, false, (i + 1).to_s) do
             Game.start_static(i + 1)
           end
         end.push(

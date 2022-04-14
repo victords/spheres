@@ -305,6 +305,7 @@ class GameMode
           o1.x += SPHERE_SIZE
           @objects[col][row] = nil
           @objects[col + 1][row] = o1
+          o1.stopped = false if row > 0 && @objects[col + 1][row - 1].nil?
           Game.play_sound(:swap)
         else
           Game.play_sound(:swapImpossible)
@@ -313,6 +314,7 @@ class GameMode
         o2.x -= SPHERE_SIZE
         @objects[col][row] = o2
         @objects[col + 1][row] = nil
+        o2.stopped = false if row > 0 && @objects[col][row - 1].nil?
         Game.play_sound(:swap)
       else
         Game.play_sound(:swapImpossible)
